@@ -241,7 +241,7 @@
   </div>
 </div>
 
-<footer>Hidden Gems — 4★+ restaurants · 50-200 reviews · near you</footer>
+<footer>Hidden Gems — 4★+ restaurants · 50+ reviews · near you</footer>
 
 <script>
 window.onerror=function(m,u,l){console.error("JS Error:",m,"line",l);const el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+m;el.style.display="block"}};
@@ -272,12 +272,13 @@ function distanceMi(lat1,lng1,lat2,lng2){if(!lat1||!lat2)return null;const R=395
 function fmtDist(d){if(!d&&d!==0)return"";return d<0.1?"Nearby":d<1?`${(d*5280/100).toFixed(0)}00 ft`:`${d.toFixed(1)} mi`}
 function gemLine(r){
   const rc=r.reviewCount,rt=r.rating;
-  if(rt>=4.8&&rc<80)return`${rt} stars from just ${rc} reviews — a rare find`;
-  if(rt>=4.7)return`One of the highest-rated hidden spots nearby`;
-  if(rc<80)return`Only ${rc} reviews — most people haven't found this yet`;
-  if(rc<120)return`Flying under the radar with ${rc} reviews and counting`;
-  if(rt>=4.5)return`Quietly excellent — ${rt} stars before the crowds arrive`;
-  return`A solid ${rt}-star spot the algorithm hasn't pushed yet`;
+  if(rt>=4.8&&rc<100)return`${rt} stars from just ${rc} reviews — a rare find`;
+  if(rt>=4.8)return`Exceptional ${rt}-star rating — one of the best nearby`;
+  if(rc<100)return`Only ${rc} reviews — you're getting here early`;
+  if(rc<200)return`Under 200 reviews — still flying under the radar`;
+  if(rc<500)return`Great food without the hype — ${rc} reviews and climbing`;
+  if(rt>=4.5)return`${rt} stars across ${rc} reviews — consistently excellent`;
+  return`A proven ${rt}-star spot with ${rc} happy diners`;
 }
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2400)}
 function showError(msg){const el=document.getElementById("errorMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",5000)}
@@ -469,7 +470,7 @@ async function fetchPlaces(lat,lng){
 }
 
 function processPlaces(places,cLat,cLng){
-  return places.filter(p=>p.rating>=4.0&&p.user_ratings_total>=50&&p.user_ratings_total<=200).map(p=>{
+  return places.filter(p=>p.rating>=4.0&&p.user_ratings_total>=50).map(p=>{
     const rawType=(p.types||[]).find(t=>!["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t))||"Restaurant";
     const allText=((p.name||"")+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
     let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
@@ -492,7 +493,7 @@ async function handleSearch(){
     const places=await fetchPlaces(lat,lng);
     allGems=processPlaces(places,lat,lng);
     updateMapMarkers();
-    if(!allGems.length&&places.length)toast(`${places.length} restaurants found, but none had 50-200 reviews with 4★+`);
+    if(!allGems.length&&places.length)toast(`${places.length} restaurants found, but none matched the hidden gem filter`);
     else toast(`Found ${allGems.length} hidden gems`);
     renderCurrentView();
   }catch(e){
