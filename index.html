@@ -382,11 +382,27 @@
   <div class="modal">
     <span class="modal-icon">💎</span>
     <h2>Hidden Gems</h2>
-    <p>Find incredible restaurants nobody knows about yet. Enter your Google Places API key, or explore with demo data.</p>
-    <input type="password" id="apiKeyInput" placeholder="Google Places API key..." />
+    <p>Discover incredible restaurants nobody knows about yet. Search real Nashville spots or explore with sample data.</p>
+    <div class="modal-btns" style="flex-direction:column;gap:10px">
+      <button class="btn btn-accent" onclick="startLive()" style="width:100%">🔍 Search Nashville</button>
+      <button class="btn btn-ghost" onclick="startDemo()" style="width:100%">Try Demo Data</button>
+    </div>
+    <p style="margin-top:16px;font-size:12px;color:var(--text-muted);text-align:center">
+      <a href="#" onclick="event.preventDefault();showWorkerConfig()" style="color:var(--text-dim);text-decoration:underline">Configure API endpoint</a>
+    </p>
+  </div>
+</div>
+
+<!-- Worker URL Config (hidden by default) -->
+<div class="modal-overlay" id="workerModal" style="display:none">
+  <div class="modal">
+    <span class="modal-icon">⚙️</span>
+    <h2>API Configuration</h2>
+    <p>Enter your Cloudflare Worker URL. This is where the app sends search requests.</p>
+    <input type="text" id="workerUrlInput" placeholder="https://hidden-gems-api.yourname.workers.dev" style="width:100%;padding:16px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;margin-bottom:16px;" />
     <div class="modal-btns">
-      <button class="btn btn-accent" id="btnLive" disabled onclick="startLive()">Connect</button>
-      <button class="btn btn-ghost" onclick="startDemo()">Try Demo</button>
+      <button class="btn btn-accent" onclick="saveWorkerUrl()">Save</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('workerModal').style.display='none'">Cancel</button>
     </div>
   </div>
 </div>
@@ -408,7 +424,7 @@
   <!-- SEARCH (live mode) -->
   <div id="searchArea" style="display:none">
     <div class="search-row">
-      <input class="search-input" id="zipInput" placeholder="Zip code or city..." />
+      <input class="search-input" id="zipInput" placeholder="Zip code or city..." value="Nashville, TN" />
       <button class="search-btn" id="searchBtn" onclick="handleSearch()">Find</button>
       <button class="geo-btn" onclick="handleGeo()" title="Use my location">📍</button>
     </div>
@@ -562,6 +578,22 @@ const CUISINE_MAP = {
 let apiKey = "", mode = null, allGems = [], savedIds = new Set(), sortBy = "gem";
 let currentView = "surprise", activeMood = null, currentSurprise = null;
 
+// Cloudflare Worker proxy URL — UPDATE THIS to your worker URL
+let WORKER_URL = localStorage.getItem("hg_worker_url") || "https://hidden-gems-api.tstavet.workers.dev";
+
+function showWorkerConfig() {
+  document.getElementById("workerUrlInput").value = WORKER_URL.includes("YOURNAME") ? "" : WORKER_URL;
+  document.getElementById("workerModal").style.display = "flex";
+}
+function saveWorkerUrl() {
+  const val = document.getElementById("workerUrlInput").value.trim().replace(/\/+$/, "");
+  if (!val) return;
+  WORKER_URL = val;
+  localStorage.setItem("hg_worker_url", val);
+  document.getElementById("workerModal").style.display = "none";
+  toast("API endpoint saved");
+}
+
 /* ═══ INIT ═══ */
 function loadSaved() {
   try { const s = localStorage.getItem("hg_saved"); if (s) savedIds = new Set(JSON.parse(s)); } catch(e) {}
@@ -571,9 +603,6 @@ function persistSaved() {
 }
 loadSaved();
 
-document.getElementById("apiKeyInput").addEventListener("input", function() {
-  document.getElementById("btnLive").disabled = !this.value.trim();
-});
 document.getElementById("zipInput").addEventListener("keydown", e => { if (e.key === "Enter") handleSearch(); });
 
 /* ═══ HELPERS ═══ */
@@ -802,19 +831,19 @@ function startDemo() {
 }
 
 function startLive() {
-  const key = document.getElementById("apiKeyInput").value.trim();
-  if (!key) return;
-  apiKey = key; mode = "live";
+  mode = "live";
   document.getElementById("modal").style.display = "none";
   document.getElementById("app").style.display = "block";
   document.getElementById("searchArea").style.display = "block";
+  // Auto-search Nashville on launch
+  handleSearch();
 }
 
 async function geocode(q) {
-  const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(q)}&key=${apiKey}`);
+  const r = await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);
   const d = await r.json();
   if (d.results?.length) return d.results[0].geometry.location;
-  throw new Error("Location not found.");
+  throw new Error("Location not found. Check your API endpoint in settings.");
 }
 
 async function fetchPlaces(lat, lng) {
@@ -822,10 +851,10 @@ async function fetchPlaces(lat, lng) {
   let all = [];
   for (const t of types) {
     try {
-      const r = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=8000&type=${t}&key=${apiKey}`);
+      const r = await fetch(`${WORKER_URL}/nearby?lat=${lat}&lng=${lng}&radius=8000&type=${t}`);
       const d = await r.json();
       if (d.results) all = all.concat(d.results);
-    } catch(e) {}
+    } catch(e) { console.warn("Fetch failed for type:", t, e); }
   }
   const seen = new Set();
   return all.filter(r => { if (seen.has(r.place_id)) return false; seen.add(r.place_id); return true; });
@@ -853,6 +882,10 @@ function processPlaces(places) {
 async function handleSearch() {
   const q = document.getElementById("zipInput").value.trim();
   if (!q) return;
+  if (WORKER_URL.includes("YOURNAME")) {
+    showError("Set up your API endpoint first. Click 'Configure API endpoint' on the start screen, or refresh the page.");
+    return;
+  }
   const btn = document.getElementById("searchBtn");
   btn.textContent = "...";
   document.getElementById("loadingBar").style.display = "block";
@@ -860,15 +893,30 @@ async function handleSearch() {
     const { lat, lng } = await geocode(q);
     const places = await fetchPlaces(lat, lng);
     allGems = processPlaces(places);
+    if (allGems.length === 0 && places.length > 0) {
+      toast(`Found ${places.length} restaurants, but none matched the hidden gem filter`);
+    } else {
+      toast(`Found ${allGems.length} hidden gems`);
+    }
     renderCurrentView();
-    toast(`Found ${allGems.length} gems`);
-  } catch(e) { showError(e.message || "Search failed."); }
+  } catch(e) {
+    const msg = e.message || "Search failed.";
+    if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+      showError("Can't reach the API. Check your Cloudflare Worker URL in settings.");
+    } else {
+      showError(msg);
+    }
+  }
   btn.textContent = "Find";
   document.getElementById("loadingBar").style.display = "none";
 }
 
 function handleGeo() {
   if (!navigator.geolocation) { showError("Geolocation not supported."); return; }
+  if (WORKER_URL.includes("YOURNAME")) {
+    showError("Set up your API endpoint first. Refresh and click 'Configure API endpoint'.");
+    return;
+  }
   document.getElementById("loadingBar").style.display = "block";
   navigator.geolocation.getCurrentPosition(async pos => {
     try {
