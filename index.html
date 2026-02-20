@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Hidden Gems — Restaurants Before the Crowds</title>
-  <meta name="description" content="Discover 4-star restaurants with 50-200 reviews near you. Great food, no crowds." />
+  <title>Hidden Gems — Discover Great Restaurants</title>
+  <meta name="description" content="Find 4-star restaurants with real reviews near you. Great food, less hype." />
   <meta name="theme-color" content="#0c0b10" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    :root{--bg:#0c0b10;--surface:#16151d;--surface-2:#1e1d27;--border:#2a2935;--text:#eeedf5;--text-dim:#8a889a;--text-muted:#5c5a6b;--accent:#e8c547;--accent-dim:#e8c54720;--accent-glow:#e8c54712;--danger:#e85a5a;--green:#34d399;--radius:20px;--radius-sm:12px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
+    :root{--bg:#0c0b10;--surface:#16151d;--surface-2:#1e1d27;--border:#2a2935;--text:#eeedf5;--text-dim:#8a889a;--text-muted:#5c5a6b;--accent:#e8c547;--accent-dim:#e8c54720;--accent-glow:#e8c54712;--danger:#e85a5a;--green:#34d399;--ultra:#c084fc;--fire:#fb923c;--radius:20px;--radius-sm:12px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}::selection{background:var(--accent);color:var(--bg)}html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
     input::placeholder{color:var(--text-muted)}button{font-family:var(--font)}
@@ -20,24 +20,22 @@
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @keyframes cardFlip{0%{transform:rotateY(0) scale(1)}40%{transform:rotateY(90deg) scale(.95)}60%{transform:rotateY(90deg) scale(.95)}100%{transform:rotateY(0) scale(1)}}
     @keyframes heartPop{0%{transform:scale(1)}30%{transform:scale(1.4)}60%{transform:scale(.9)}100%{transform:scale(1)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 
     .app{max-width:600px;margin:0 auto;padding:0 20px}
-
-    /* HEADER */
     .header{padding:32px 0 6px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s ease}
     .logo{display:flex;align-items:center;gap:8px}
     .logo-gem{font-size:22px}.logo-text{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-family:var(--mono)}
     .settings-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
     .settings-btn:hover{border-color:var(--accent);color:var(--accent)}
 
-    /* SEARCH */
     .search-row{display:flex;gap:8px;margin-bottom:14px;animation:fadeUp .5s ease .05s both}
     .search-input{flex:1;padding:13px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;outline:none;font-family:var(--font);transition:border-color .25s}
     .search-input:focus{border-color:var(--accent)}
     .search-btn{padding:13px 18px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}.search-btn:hover{filter:brightness(1.1)}
     .geo-btn{padding:13px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center}.geo-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .scan-status{font-size:12px;font-family:var(--mono);color:var(--text-muted);text-align:center;padding:4px 0 10px;animation:pulse 1.5s ease infinite}
 
-    /* MAP */
     .map-wrap{margin-bottom:14px;animation:fadeUp .5s ease .1s both}
     .map-container{width:100%;height:260px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);position:relative}
     .map-container.expanded{height:460px}
@@ -51,31 +49,30 @@
     .popup-name{font-weight:700;font-size:14px;margin-bottom:3px}.popup-meta{color:var(--text-dim);font-family:var(--mono);font-size:11px}.popup-star{color:var(--accent)}
     .leaflet-popup-close-button{color:var(--text-muted)!important}
 
-    /* FILTERS */
     .filters-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;animation:fadeUp .5s ease .15s both;align-items:center}
     .filter-pill{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s;white-space:nowrap}
     .filter-pill:hover{border-color:var(--text-muted)}
     .filter-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
     .filter-divider{width:1px;height:20px;background:var(--border);margin:0 4px}
 
-    /* TABS */
     .tabs{display:flex;gap:4px;justify-content:center;margin:14px 0 16px;animation:fadeUp .5s ease .1s both}
     .tab{padding:9px 20px;border-radius:40px;border:none;background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s}
     .tab:hover{color:var(--text-dim)}.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,.2)}
 
-    /* SURPRISE */
     .surprise-section{animation:fadeUp .5s ease;padding-bottom:32px}
-    .surprise-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1px solid var(--border);position:relative;min-height:280px;display:flex;flex-direction:column}
+    .surprise-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1px solid var(--border);position:relative;min-height:260px;display:flex;flex-direction:column}
     .surprise-card.flipping{animation:cardFlip .6s ease}
     .surprise-photo{width:100%;height:180px;object-fit:cover;display:block;background:var(--surface-2)}
-    .surprise-photo-placeholder{width:100%;height:120px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:40px;opacity:.3}
     .surprise-body{padding:24px 24px 16px;flex:1;display:flex;flex-direction:column;position:relative}
     .surprise-gem-badge{position:absolute;top:-28px;right:20px;z-index:2}
     .gem-ring{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
     .gem-ring-inner{width:38px;height:38px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);font-family:var(--mono)}
-    .surprise-name{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
-    .surprise-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .surprise-name{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .surprise-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
     .tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase}
+    .badge-ultra{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#c084fc20;color:var(--ultra);border:1px solid #c084fc40}
+    .badge-fire{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#fb923c20;color:var(--fire);border:1px solid #fb923c40}
+    .badge-top{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#e8c54720;color:var(--accent);border:1px solid #e8c54740}
     .surprise-stats{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13px;font-family:var(--mono);margin-bottom:6px}
     .star{color:var(--accent)}
     .open-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
@@ -91,7 +88,6 @@
     .surprise-big-btn:hover .dice{transform:rotate(20deg)}.surprise-big-btn .dice{display:inline-block;transition:transform .3s}
     .surprise-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}.surprise-empty-icon{font-size:44px;display:block;margin-bottom:14px;opacity:.5}
 
-    /* CARDS */
     .list-section,.saved-section{animation:fadeUp .4s ease;padding-bottom:32px}
     .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
     .list-count{color:var(--text-dim);font-size:13px}.list-count strong{color:var(--text)}
@@ -99,12 +95,13 @@
     .sort-pill{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s}
     .sort-pill:hover{border-color:var(--text-muted)}.sort-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
     .card-list{display:flex;flex-direction:column;gap:10px}
-    .card{background:var(--surface);border-radius:16px;border:1px solid var(--border);transition:all .3s;cursor:pointer;overflow:hidden}
+    .card{background:var(--surface);border-radius:16px;border:1px solid var(--border);transition:all .3s;cursor:pointer;overflow:hidden;position:relative}
     .card:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+    .card.card-ultra{border-color:#c084fc30}.card.card-fire{border-color:#fb923c30}
     .card-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2)}
     .card-body{padding:16px 20px}
     .card-row{display:flex;justify-content:space-between;align-items:flex-start}
-    .card h3{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+    .card h3{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .card-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
     .card-cuisine{font-size:9px;font-weight:600;padding:2px 8px;border-radius:12px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
     .card-price{color:var(--text-muted);font-size:11px;font-family:var(--mono)}
@@ -114,10 +111,8 @@
     .card-actions{display:flex;gap:6px;align-items:flex-start;margin-left:10px;flex-shrink:0}
     .card-action-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;color:var(--text-muted)}
     .card-action-btn:hover{border-color:var(--text-muted)}.card-action-btn.saved{border-color:var(--danger);color:var(--danger);background:#e85a5a12}
-
     .saved-empty{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px}.saved-empty-icon{font-size:36px;display:block;margin-bottom:10px;opacity:.5}
 
-    /* MISC */
     .error-bar{padding:12px 16px;border-radius:var(--radius-sm);background:#e85a5a12;border:1px solid #e85a5a25;color:var(--danger);font-size:13px;text-align:center;margin-bottom:14px;animation:fadeIn .3s ease}
     .loading-bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-bottom:16px}.loading-bar-inner{height:100%;width:40%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent),transparent);animation:shimmer 1.2s ease infinite;background-size:200% 100%}
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-2);color:var(--text);padding:12px 22px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:13px;font-weight:500;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -134,7 +129,6 @@
 </head>
 <body>
 
-<!-- Settings modal (hidden) -->
 <div class="modal-overlay" id="settingsModal" style="display:none">
   <div class="modal">
     <h2>⚙️ Settings</h2>
@@ -150,20 +144,16 @@
 <div class="toast" id="toast"></div>
 
 <div class="app">
-  <!-- HEADER -->
   <div class="header">
     <div class="logo"><span class="logo-gem">💎</span><span class="logo-text">Hidden Gems</span></div>
     <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
-
-  <!-- SEARCH -->
   <div class="search-row">
-    <input class="search-input" id="zipInput" placeholder="City, zip, or address..." value="Nashville, TN" />
+    <input class="search-input" id="zipInput" placeholder="Search any city, zip, or address..." />
     <button class="search-btn" id="searchBtn" onclick="handleSearch()">Find</button>
     <button class="geo-btn" onclick="handleGeo()" title="Use my location">📍</button>
   </div>
 
-  <!-- MAP -->
   <div class="map-wrap" id="mapWrap" style="display:none">
     <div class="map-container" id="mapContainer">
       <div class="map-badge" id="mapBadge">0 gems</div>
@@ -172,7 +162,8 @@
     </div>
   </div>
 
-  <!-- FILTERS: cuisine (multi-select) + price -->
+  <div id="scanStatus" class="scan-status" style="display:none"></div>
+
   <div class="filters-row" id="filtersRow">
     <button class="filter-pill" data-cuisine="asian" onclick="toggleCuisine(this)">🍜 Asian</button>
     <button class="filter-pill" data-cuisine="italian" onclick="toggleCuisine(this)">🍕 Italian</button>
@@ -191,14 +182,12 @@
   <div id="errorMsg" class="error-bar" style="display:none"></div>
   <div id="loadingBar" class="loading-bar" style="display:none"><div class="loading-bar-inner"></div></div>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="switchView('surprise',this)">Surprise Me</button>
     <button class="tab" onclick="switchView('list',this)">All Gems</button>
     <button class="tab" onclick="switchView('saved',this)">Saved</button>
   </div>
 
-  <!-- SURPRISE -->
   <div class="surprise-section" id="viewSurprise">
     <div class="surprise-card" id="surpriseCard">
       <div class="surprise-empty" id="surpriseEmpty"><span class="surprise-empty-icon">🎲</span><p>Tap Surprise Me to discover a hidden gem</p></div>
@@ -207,7 +196,7 @@
         <div class="surprise-body">
           <div class="surprise-gem-badge"><div class="gem-ring" id="sGemRing"><div class="gem-ring-inner" id="sGemScore"></div></div></div>
           <h2 class="surprise-name" id="sName"></h2>
-          <div class="surprise-meta"><span class="tag" id="sCuisine"></span><span class="open-badge" id="sOpen"></span></div>
+          <div class="surprise-meta"><span class="tag" id="sCuisine"></span><span id="sBadge"></span><span class="open-badge" id="sOpen"></span></div>
           <div class="surprise-stats"><span><span class="star">★</span> <span id="sRating"></span></span><span>·</span><span id="sReviews"></span><span>·</span><span id="sDistance"></span></div>
           <p class="surprise-gem-line" id="sGemLine"></p>
           <p class="surprise-address" id="sAddress"></p>
@@ -222,7 +211,6 @@
     <button class="surprise-big-btn" onclick="rollSurprise()"><span class="dice">🎲</span> Surprise Me</button>
   </div>
 
-  <!-- LIST -->
   <div class="list-section" id="viewList" style="display:none">
     <div class="list-header"><span class="list-count" id="listCount"></span>
       <div class="sort-pills">
@@ -234,24 +222,33 @@
     <div class="card-list" id="cardList"></div>
   </div>
 
-  <!-- SAVED -->
   <div class="saved-section" id="viewSaved" style="display:none">
     <div class="list-header"><span class="list-count" id="savedCount"></span></div>
     <div class="card-list" id="savedList"></div>
   </div>
 </div>
 
-<footer>Hidden Gems — 4★+ restaurants · 50+ reviews · near you</footer>
+<footer>Hidden Gems — Discover great restaurants anywhere</footer>
 
 <script>
 window.onerror=function(m,u,l){console.error("JS Error:",m,"line",l);const el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+m;el.style.display="block"}};
 
 let WORKER_URL=localStorage.getItem("hg_worker_url")||"https://hidden-gems-api.tstavet.workers.dev";
-let allGems=[],savedIds=new Set(),sortBy="gem",currentView="surprise",currentSurprise=null;
+let allGems=[],savedIds=new Set(),sortBy="gem",currentView="surprise",currentSurprise=null,isScanning=false;
 let activeCuisines=new Set(),activePrices=new Set();
 let leafletMap=null,mapMarkers=[],searchCenter=null,userLat=null,userLng=null;
 
-const CUISINE_KW={asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry","dim sum","dumpling","teriyaki","szechuan","sichuan","boba"],japanese:["japanese","sushi","ramen","udon","tempura","hibachi","izakaya","tonkatsu","yakitori","bento","poke"],italian:["italian","pizza","pasta","trattoria","ristorante","gelato","panini"],mexican:["mexican","taco","burrito","taqueria","latin","cuban","empanada","brazilian","argentine","peruvian","ceviche","colombian","churrasco","pupusa","arepa"],healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","organic","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian"],bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","muffin","cinnamon","tea house"],bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole"],seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar"]};
+/* Extended cuisine keywords with food-specific terms */
+const CUISINE_KW={
+  asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry","dim sum","dumpling","teriyaki","szechuan","sichuan","boba","pad thai","tikka","masala","biryani","samosa","spring roll","fried rice","lo mein","kung pao","general tso","orange chicken","satay","laksa","banh mi"],
+  japanese:["japanese","sushi","ramen","udon","tempura","hibachi","izakaya","tonkatsu","yakitori","bento","poke","miso","sake","sashimi","nigiri","maki","katsu","donburi","gyoza","edamame","matcha","robata","omakase","teppanyaki"],
+  italian:["italian","pizza","pasta","trattoria","ristorante","gelato","panini","risotto","lasagna","calzone","bruschetta","antipasto","prosciutto","tiramisu","margherita","napoletana","osso buco","piccata","parmigiana","carbonara","bolognese","alfredo","caprese"],
+  mexican:["mexican","taco","burrito","taqueria","latin","cuban","empanada","brazilian","argentine","peruvian","ceviche","colombian","churrasco","pupusa","arepa","enchilada","tamale","quesadilla","mole","pozole","elote","churro","carnitas","al pastor","birria","horchata","guacamole","salsa verde","chile relleno","fajita"],
+  healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","organic","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian","plant based","grain bowl","quinoa","avocado","poke bowl","buddha bowl","clean eating","farm to table","harvest"],
+  bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","muffin","cinnamon","tea house","boulangerie","patisserie","scone","macaron","espresso","latte","bagel","biscuit","cobbler","danish","eclair","strudel","crepe","french toast"],
+  bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole","pulled pork","smoked","hot chicken","cornbread","collard","jambalaya","gumbo","po boy","hush puppy","pit","char","flame","rotisserie","meat and three","country"],
+  seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar","clam","mussel","scallop","calamari","catch","pier","harbor","dock","tuna","salmon","mahi","grouper","snapper","cioppino","boil","steam"]
+};
 const CUISINE_COLORS={asian:"#e74c3c",japanese:"#e91e63",italian:"#9b59b6",mexican:"#00b894",healthy:"#00cec9",bakery:"#a29bfe",bbq:"#d63031",seafood:"#0984e3",default:"#636e72"};
 
 function loadSaved(){try{const s=localStorage.getItem("hg_saved");if(s)savedIds=new Set(JSON.parse(s))}catch(e){}}
@@ -260,30 +257,50 @@ loadSaved();
 
 function openSettings(){document.getElementById("workerUrlInput").value=WORKER_URL;document.getElementById("settingsModal").style.display="flex"}
 function saveWorkerUrl(){const v=document.getElementById("workerUrlInput").value.trim().replace(/\/+$/,"");if(!v)return;WORKER_URL=v;localStorage.setItem("hg_worker_url",v);document.getElementById("settingsModal").style.display="none";toast("Saved")}
-
 document.getElementById("zipInput").addEventListener("keydown",e=>{if(e.key==="Enter")handleSearch()});
 
-/* HELPERS */
-function gemScore(r,rc){return Math.max(0,Math.min(100,Math.round((r*20)-(rc*0.15))))}
+/* ═══ NEW GEM SCORE ═══
+   Rewards: high rating, fewer reviews (more undiscovered)
+   Formula: rating weight (0-60) + scarcity bonus (0-40)
+   A 4.9 with 60 reviews = ~95. A 4.2 with 5000 reviews = ~35 */
+function gemScore(rating,reviewCount){
+  const ratingPart=((rating-4.0)/1.0)*60; // 4.0=0, 5.0=60
+  const scarcity=Math.max(0,40-Math.log10(Math.max(reviewCount,1))*12); // fewer reviews = higher
+  return Math.max(0,Math.min(100,Math.round(ratingPart+scarcity)));
+}
+
+/* ═══ BADGES ═══ */
+function getBadge(r){
+  const gs=gemScore(r.rating,r.reviewCount);
+  if(r.rating>=4.8&&r.reviewCount<150)return{label:"💎 Ultra Rare",cls:"badge-ultra"};
+  if(r.rating>=4.6&&r.reviewCount<300)return{label:"🔥 Trending",cls:"badge-fire"};
+  if(gs>=70)return{label:"⭐ Top Gem",cls:"badge-top"};
+  return null;
+}
+function badgeHTML(r){const b=getBadge(r);return b?`<span class="${b.cls}">${b.label}</span>`:""}
+
 function priceStr(n){return n?"$".repeat(n):""}
 function getColor(group){return CUISINE_COLORS[group]||CUISINE_COLORS.default}
 function photoUrl(ref,w){return ref?`${WORKER_URL}/photo?ref=${ref}&maxwidth=${w||400}`:"";}
 function distanceMi(lat1,lng1,lat2,lng2){if(!lat1||!lat2)return null;const R=3959,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
-function fmtDist(d){if(!d&&d!==0)return"";return d<0.1?"Nearby":d<1?`${(d*5280/100).toFixed(0)}00 ft`:`${d.toFixed(1)} mi`}
+function fmtDist(d){if(!d&&d!==0)return"";return d<0.1?"Nearby":d<1?`${Math.round(d*5280/100)}00 ft`:`${d.toFixed(1)} mi`}
+
 function gemLine(r){
-  const rc=r.reviewCount,rt=r.rating;
-  if(rt>=4.8&&rc<100)return`${rt} stars from just ${rc} reviews — a rare find`;
-  if(rt>=4.8)return`Exceptional ${rt}-star rating — one of the best nearby`;
+  const rc=r.reviewCount,rt=r.rating,b=getBadge(r);
+  if(b&&b.cls==="badge-ultra")return`${rt} stars from just ${rc} reviews — discover it before everyone else`;
+  if(b&&b.cls==="badge-fire")return`Rising fast with ${rc} reviews — get here while it's still easy`;
+  if(rt>=4.8)return`Exceptional ${rt}-star rating across ${rc} reviews`;
   if(rc<100)return`Only ${rc} reviews — you're getting here early`;
-  if(rc<200)return`Under 200 reviews — still flying under the radar`;
-  if(rc<500)return`Great food without the hype — ${rc} reviews and climbing`;
+  if(rc<250)return`Under 250 reviews — still under the radar`;
+  if(rc<500)return`Building a following with ${rc} reviews — quality speaks`;
   if(rt>=4.5)return`${rt} stars across ${rc} reviews — consistently excellent`;
   return`A proven ${rt}-star spot with ${rc} happy diners`;
 }
+
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2400)}
 function showError(msg){const el=document.getElementById("errorMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",5000)}
 
-/* MAP */
+/* ═══ MAP ═══ */
 function initMap(lat,lng){
   searchCenter=[lat,lng];userLat=lat;userLng=lng;
   document.getElementById("mapWrap").style.display="block";
@@ -292,18 +309,22 @@ function initMap(lat,lng){
   L.control.zoom({position:"topright"}).addTo(leafletMap);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd"}).addTo(leafletMap);
   L.circle([lat,lng],{radius:8047,color:"#e8c547",fillColor:"#e8c547",fillOpacity:.03,weight:1,opacity:.25,dashArray:"6 4"}).addTo(leafletMap);
-  // User location marker
-  L.circleMarker([lat,lng],{radius:6,color:"#e8c547",fillColor:"#e8c547",fillOpacity:1,weight:2}).addTo(leafletMap).bindPopup("<div style='font-family:var(--mono);font-size:12px;color:var(--text)'>📍 You are here</div>");
+  L.circleMarker([lat,lng],{radius:6,color:"#e8c547",fillColor:"#e8c547",fillOpacity:1,weight:2}).addTo(leafletMap);
 }
 function updateMapMarkers(){
   if(!leafletMap)return;
   mapMarkers.forEach(m=>leafletMap.removeLayer(m));mapMarkers=[];
   const filtered=getFiltered();
   document.getElementById("mapBadge").textContent=`${filtered.length} gems`;
-  const icon=L.divIcon({className:"",html:'<div style="width:26px;height:26px;background:#e8c547;border-radius:50%;border:3px solid #0c0b10;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(232,197,71,.4)">💎</div>',iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-15]});
+  const mkIcon=r=>{
+    const b=getBadge(r);
+    const emoji=b&&b.cls==="badge-ultra"?"💎":b&&b.cls==="badge-fire"?"🔥":"💎";
+    const bg=b&&b.cls==="badge-ultra"?"#c084fc":b&&b.cls==="badge-fire"?"#fb923c":"#e8c547";
+    return L.divIcon({className:"",html:`<div style="width:26px;height:26px;background:${bg};border-radius:50%;border:3px solid #0c0b10;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px ${bg}66">${emoji}</div>`,iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-15]});
+  };
   filtered.forEach(r=>{
     if(!r.lat||!r.lng)return;
-    const m=L.marker([r.lat,r.lng],{icon}).addTo(leafletMap);
+    const m=L.marker([r.lat,r.lng],{icon:mkIcon(r)}).addTo(leafletMap);
     const d=r.distance?fmtDist(r.distance):"";
     m.bindPopup(`<div class="popup-name">${r.name}</div><div class="popup-meta"><span class="popup-star">★</span> ${r.rating} · ${r.reviewCount} rev${d?" · "+d:""}</div><div style="margin-top:6px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name+" "+r.address)}" target="_blank" style="color:#e8c547;font-size:11px;font-weight:600;text-decoration:none">Navigate →</a></div>`,{maxWidth:240});
     mapMarkers.push(m);
@@ -313,44 +334,28 @@ function updateMapMarkers(){
 }
 function toggleMapSize(){const c=document.getElementById("mapContainer"),b=document.getElementById("mapToggle");c.classList.toggle("expanded");b.textContent=c.classList.contains("expanded")?"Collapse":"Expand";setTimeout(()=>leafletMap.invalidateSize(),300)}
 
-/* FILTERS */
-function toggleCuisine(btn){
-  const c=btn.dataset.cuisine;
-  if(activeCuisines.has(c)){activeCuisines.delete(c);btn.classList.remove("active")}
-  else{activeCuisines.add(c);btn.classList.add("active")}
-  applyFilters();
-}
-function togglePrice(btn){
-  const p=parseInt(btn.dataset.price);
-  if(activePrices.has(p)){activePrices.delete(p);btn.classList.remove("active")}
-  else{activePrices.add(p);btn.classList.add("active")}
-  applyFilters();
-}
+/* ═══ FILTERS ═══ */
+function toggleCuisine(btn){const c=btn.dataset.cuisine;if(activeCuisines.has(c)){activeCuisines.delete(c);btn.classList.remove("active")}else{activeCuisines.add(c);btn.classList.add("active")}applyFilters()}
+function togglePrice(btn){const p=parseInt(btn.dataset.price);if(activePrices.has(p)){activePrices.delete(p);btn.classList.remove("active")}else{activePrices.add(p);btn.classList.add("active")}applyFilters()}
 function applyFilters(){renderCurrentView();updateMapMarkers()}
-
 function getFiltered(){
   let list=allGems;
   if(activeCuisines.size>0){
     list=list.filter(g=>{
       const hay=(g.cuisine+" "+(g.cuisineGroup||"")+" "+g.name).toLowerCase();
-      for(const c of activeCuisines){
-        const kws=CUISINE_KW[c]||[c];
-        if(kws.some(k=>hay.includes(k)))return true;
-      }
+      for(const c of activeCuisines){const kws=CUISINE_KW[c]||[c];if(kws.some(k=>hay.includes(k)))return true}
       return false;
     });
   }
-  if(activePrices.size>0){
-    list=list.filter(g=>activePrices.has(g.priceLevel));
-  }
+  if(activePrices.size>0)list=list.filter(g=>activePrices.has(g.priceLevel));
   return list;
 }
 
-/* SORTING */
+/* ═══ SORTING ═══ */
 function getSorted(list){return[...list].sort((a,b)=>{if(sortBy==="rating")return b.rating-a.rating;if(sortBy==="nearest")return(a.distance||99)-(b.distance||99);return gemScore(b.rating,b.reviewCount)-gemScore(a.rating,a.reviewCount)})}
 function setSort(s,btn){sortBy=s;document.querySelectorAll(".sort-pill").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderList()}
 
-/* VIEWS */
+/* ═══ VIEWS ═══ */
 function switchView(view,btn){
   currentView=view;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));btn.classList.add("active");
   document.getElementById("viewSurprise").style.display=view==="surprise"?"block":"none";
@@ -360,10 +365,10 @@ function switchView(view,btn){
 }
 function renderCurrentView(){if(currentView==="list")renderList();else if(currentView==="saved")renderSaved()}
 
-/* SURPRISE */
+/* ═══ SURPRISE ═══ */
 function rollSurprise(){
   const pool=getFiltered();
-  if(!pool.length){document.getElementById("surpriseEmpty").style.display="block";document.getElementById("surpriseContent").style.display="none";document.getElementById("surpriseEmpty").querySelector("p").textContent=activeCuisines.size?"No gems match those filters.":"No gems found. Try searching a location.";return}
+  if(!pool.length){document.getElementById("surpriseEmpty").style.display="block";document.getElementById("surpriseContent").style.display="none";document.getElementById("surpriseEmpty").querySelector("p").textContent=activeCuisines.size?"No gems match those filters.":isScanning?"Still scanning... try again in a moment.":"No gems found. Search a location.";return}
   currentSurprise=pool[Math.floor(Math.random()*pool.length)];
   const card=document.getElementById("surpriseCard");card.classList.add("flipping");
   setTimeout(()=>{fillSurprise(currentSurprise);document.getElementById("surpriseEmpty").style.display="none";document.getElementById("surpriseContent").style.display="block"},240);
@@ -375,6 +380,8 @@ function fillSurprise(r){
   if(r.photoRef){photo.src=photoUrl(r.photoRef,600);photo.style.display="block"}else{photo.style.display="none"}
   document.getElementById("sName").textContent=r.name;
   const tag=document.getElementById("sCuisine");tag.textContent=r.cuisine;tag.style.cssText=`background:${c}20;color:${c}`;
+  const badgeEl=document.getElementById("sBadge");const b=getBadge(r);
+  if(b){badgeEl.className=b.cls;badgeEl.textContent=b.label;badgeEl.style.display="inline"}else{badgeEl.style.display="none"}
   document.getElementById("sRating").textContent=r.rating;
   document.getElementById("sReviews").textContent=r.reviewCount+" reviews";
   document.getElementById("sDistance").textContent=fmtDist(r.distance);
@@ -393,12 +400,12 @@ function toggleSaveSurprise(){if(!currentSurprise)return;const id=currentSurpris
 function shareSurprise(){if(!currentSurprise)return;const r=currentSurprise,text=`💎 Hidden Gem: ${r.name}\n★ ${r.rating} · ${r.reviewCount} reviews\n📍 ${r.address}`;if(navigator.share)navigator.share({title:"Hidden Gem: "+r.name,text}).catch(()=>{});else navigator.clipboard.writeText(text).then(()=>toast("Copied")).catch(()=>{})}
 function navigateSurprise(){if(!currentSurprise)return;window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentSurprise.name+" "+currentSurprise.address)}`,"_blank")}
 
-/* LIST */
+/* ═══ LIST ═══ */
 function renderList(){
   const filtered=getFiltered(),sorted=getSorted(filtered);
   document.getElementById("listCount").innerHTML=`<strong>${sorted.length}</strong> gem${sorted.length!==1?"s":""}`;
   const c=document.getElementById("cardList");
-  if(!sorted.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">🔍</span><p>No gems match your filters.</p></div>`;return}
+  if(!sorted.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">🔍</span><p>${isScanning?"Scanning... results will appear shortly.":"No gems match your filters."}</p></div>`;return}
   c.innerHTML=sorted.map((r,i)=>cardHTML(r,i)).join("");
 }
 function cardHTML(r,i){
@@ -406,12 +413,16 @@ function cardHTML(r,i){
   const dist=fmtDist(r.distance);
   const photoTag=r.photoRef?`<img class="card-photo" src="${photoUrl(r.photoRef,400)}" alt="${r.name}" loading="lazy"/>`:"";
   const openTag=r.openNow===true?'<span class="open-badge open" style="font-size:10px;padding:1px 6px">Open</span>':r.openNow===false?'<span class="open-badge closed" style="font-size:10px;padding:1px 6px">Closed</span>':"";
-  return`<div class="card" style="animation:fadeUp .35s ease ${i*.03}s both">${photoTag}<div class="card-body"><div class="card-row"><div style="flex:1;min-width:0"><h3>${r.name}</h3><div class="card-tags"><span class="card-cuisine" style="background:${c}18;color:${c}">${r.cuisine}</span>${r.priceLevel?`<span class="card-price">${priceStr(r.priceLevel)}</span>`:""}${openTag}</div><div class="card-stats"><span><span class="star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} rev</span>${dist?`<span>·</span><span>${dist}</span>`:""}</div><p class="card-gem-line">${gemLine(r)}</p><p class="card-address">${r.address}</p></div><div class="card-actions"><button class="card-action-btn ${saved?"saved":""}" onclick="event.stopPropagation();toggleSaveCard('${r.placeId}')">${saved?"♥":"♡"}</button><button class="card-action-btn" onclick="event.stopPropagation();navCard('${r.name.replace(/'/g,"\\'")}','${r.address.replace(/'/g,"\\'")}')">◎</button></div></div></div></div>`;
+  const badge=badgeHTML(r);
+  const b=getBadge(r);
+  const cardCls=b&&b.cls==="badge-ultra"?"card card-ultra":b&&b.cls==="badge-fire"?"card card-fire":"card";
+  return`<div class="${cardCls}" style="animation:fadeUp .35s ease ${Math.min(i*.03,.6)}s both">${photoTag}<div class="card-body"><div class="card-row"><div style="flex:1;min-width:0"><h3>${r.name} ${badge}</h3><div class="card-tags"><span class="card-cuisine" style="background:${c}18;color:${c}">${r.cuisine}</span>${r.priceLevel?`<span class="card-price">${priceStr(r.priceLevel)}</span>`:""}${openTag}</div><div class="card-stats"><span><span class="star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} rev</span>${dist?`<span>·</span><span>${dist}</span>`:""}<span>·</span><span style="color:var(--accent)">${gs}✦</span></div><p class="card-gem-line">${gemLine(r)}</p><p class="card-address">${r.address}</p></div><div class="card-actions"><button class="card-action-btn ${saved?"saved":""}" onclick="event.stopPropagation();toggleSaveCard('${r.placeId}')">${saved?"♥":"♡"}</button><button class="card-action-btn" onclick="event.stopPropagation();navCard('${esc(r.name)}','${esc(r.address)}')">◎</button></div></div></div></div>`;
 }
-function toggleSaveCard(id){if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();renderList();if(currentView==="saved")renderSaved()}
+function esc(s){return s.replace(/'/g,"\\'")}
+function toggleSaveCard(id){if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();renderList();if(currentView==="saved")renderSaved();updateMapMarkers()}
 function navCard(n,a){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n+" "+a)}`,"_blank")}
 
-/* SAVED */
+/* ═══ SAVED ═══ */
 function renderSaved(){
   const saved=allGems.filter(g=>savedIds.has(g.placeId));
   document.getElementById("savedCount").innerHTML=`<strong>${saved.length}</strong> saved`;
@@ -420,32 +431,46 @@ function renderSaved(){
   c.innerHTML=getSorted(saved).map((r,i)=>cardHTML(r,i)).join("");
 }
 
-/* API */
+/* ═══ API + INCREMENTAL LOADING ═══ */
 async function geocode(q){const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;throw new Error("Location not found.")}
 
-async function fetchPlaces(lat,lng){
-  // Tighter grid: 1.5km radius zones across 5-mile area
+function processOne(p,cLat,cLng){
+  if(p.rating<4.0||p.user_ratings_total<50)return null;
+  const rawType=(p.types||[]).find(t=>!["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t))||"Restaurant";
+  const nameLow=(p.name||"").toLowerCase();
+  const allText=(nameLow+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
+  let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
+  const rules=[{g:"asian",k:CUISINE_KW.asian},{g:"japanese",k:CUISINE_KW.japanese},{g:"italian",k:CUISINE_KW.italian},{g:"mexican",k:CUISINE_KW.mexican},{g:"healthy",k:CUISINE_KW.healthy},{g:"bakery",k:CUISINE_KW.bakery},{g:"bbq",k:CUISINE_KW.bbq},{g:"seafood",k:CUISINE_KW.seafood}];
+  for(const rule of rules){if(rule.k.some(k=>allText.includes(k))){cuisineGroup=rule.g;break}}
+  const lat=p.geometry?.location?.lat,lng=p.geometry?.location?.lng;
+  return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance:distanceMi(cLat,cLng,lat,lng),photoRef:p.photos?.[0]?.photo_reference||null,openNow:p.opening_hours?.open_now??null};
+}
+
+async function scanAndStream(lat,lng){
+  isScanning=true;allGems=[];
+  const seen=new Set();
+  const status=document.getElementById("scanStatus");
+  status.style.display="block";
+
   const offsets=[];const step=0.015;
   for(let dl=-0.05;dl<=0.05;dl+=step)for(let dn=-0.05;dn<=0.05;dn+=step){if(Math.sqrt(dl*dl+dn*dn)<=0.055)offsets.push([dl,dn])}
 
-  // Multiple search strategies per zone to surface different results
   const searches=[
     {type:"restaurant",keyword:""},
     {type:"restaurant",keyword:"dinner"},
     {type:"restaurant",keyword:"lunch"},
+    {type:"restaurant",keyword:"brunch"},
     {type:"cafe",keyword:""},
     {type:"bakery",keyword:""},
   ];
 
-  let all=[];let n=0;
-  const total=offsets.length*searches.length;
-  const batchSize=6; // concurrent requests
+  let completed=0;const total=offsets.length;
+  let lastRender=0;
 
   for(let i=0;i<offsets.length;i++){
     const[dl,dn]=offsets[i];
     const latStr=(lat+dl).toFixed(6),lngStr=(lng+dn).toFixed(6);
 
-    // Fire all searches for this zone concurrently
     const promises=searches.map(s=>{
       let url=`${WORKER_URL}/nearby?lat=${latStr}&lng=${lngStr}&radius=1500&type=${s.type}`;
       if(s.keyword)url+=`&keyword=${encodeURIComponent(s.keyword)}`;
@@ -453,35 +478,33 @@ async function fetchPlaces(lat,lng){
     });
 
     const results=await Promise.all(promises);
-    results.forEach(r=>all=all.concat(r));
+    let newCount=0;
+    results.flat().forEach(p=>{
+      if(seen.has(p.place_id))return;
+      seen.add(p.place_id);
+      const gem=processOne(p,lat,lng);
+      if(gem){allGems.push(gem);newCount++}
+    });
 
-    n+=searches.length;
-    if(n%(searches.length*3)===0){
-      const pct=Math.round(n/total*100);
-      toast(`Scanning... ${pct}%`);
+    completed++;
+    const pct=Math.round(completed/total*100);
+    status.textContent=`Scanning area... ${pct}% · ${allGems.length} gems found`;
+
+    // Incrementally update UI every few zones or when new gems found
+    const now=Date.now();
+    if(newCount>0&&(now-lastRender>800||completed===total)){
+      lastRender=now;
+      renderCurrentView();
+      updateMapMarkers();
     }
   }
 
-  // Deduplicate
-  const seen=new Set();
-  const deduped=all.filter(r=>{if(seen.has(r.place_id))return false;seen.add(r.place_id);return true});
-  console.log(`Grid: ${offsets.length} zones × ${searches.length} searches = ${total} calls. Found ${all.length} raw → ${deduped.length} unique`);
-  return deduped;
-}
-
-function processPlaces(places,cLat,cLng){
-  return places.filter(p=>p.rating>=4.0&&p.user_ratings_total>=50).map(p=>{
-    const rawType=(p.types||[]).find(t=>!["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t))||"Restaurant";
-    const allText=((p.name||"")+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
-    let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
-    const rules=[{g:"asian",k:CUISINE_KW.asian},{g:"japanese",k:CUISINE_KW.japanese},{g:"italian",k:CUISINE_KW.italian},{g:"mexican",k:CUISINE_KW.mexican},{g:"healthy",k:CUISINE_KW.healthy},{g:"bakery",k:CUISINE_KW.bakery},{g:"bbq",k:CUISINE_KW.bbq},{g:"seafood",k:CUISINE_KW.seafood}];
-    for(const rule of rules){if(rule.k.some(k=>allText.includes(k))){cuisineGroup=rule.g;break}}
-    const lat=p.geometry?.location?.lat,lng=p.geometry?.location?.lng;
-    const distance=distanceMi(cLat,cLng,lat,lng);
-    const photoRef=p.photos?.[0]?.photo_reference||null;
-    const openNow=p.opening_hours?.open_now??null;
-    return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance,photoRef,openNow};
-  });
+  status.style.display="none";
+  isScanning=false;
+  renderCurrentView();
+  updateMapMarkers();
+  toast(`Done! Found ${allGems.length} gems`);
+  console.log(`Scan complete: ${offsets.length} zones × ${searches.length} = ${offsets.length*searches.length} calls. ${allGems.length} gems from ${seen.size} unique places.`);
 }
 
 async function handleSearch(){
@@ -490,37 +513,58 @@ async function handleSearch(){
   try{
     const{lat,lng}=await geocode(q);
     initMap(lat,lng);
-    const places=await fetchPlaces(lat,lng);
-    allGems=processPlaces(places,lat,lng);
-    updateMapMarkers();
-    if(!allGems.length&&places.length)toast(`${places.length} restaurants found, but none matched the hidden gem filter`);
-    else toast(`Found ${allGems.length} hidden gems`);
-    renderCurrentView();
+    document.getElementById("loadingBar").style.display="none";
+    btn.textContent="Find";
+    await scanAndStream(lat,lng);
   }catch(e){
     if((e.message||"").includes("Failed to fetch"))showError("Can't reach API. Check settings.");
     else showError(e.message||"Search failed.");
+    btn.textContent="Find";document.getElementById("loadingBar").style.display="none";
   }
-  btn.textContent="Find";document.getElementById("loadingBar").style.display="none";
 }
 
 function handleGeo(){
   if(!navigator.geolocation){showError("Geolocation not supported.");return}
   document.getElementById("loadingBar").style.display="block";
   navigator.geolocation.getCurrentPosition(async pos=>{
-    try{
-      const lat=pos.coords.latitude,lng=pos.coords.longitude;
-      document.getElementById("zipInput").value="📍 Current location";
-      initMap(lat,lng);
-      const places=await fetchPlaces(lat,lng);
-      allGems=processPlaces(places,lat,lng);updateMapMarkers();renderCurrentView();
-      toast(`Found ${allGems.length} gems nearby`);
-    }catch(e){showError(e.message)}
+    const lat=pos.coords.latitude,lng=pos.coords.longitude;
+    document.getElementById("zipInput").value="📍 Current location";
+    initMap(lat,lng);
     document.getElementById("loadingBar").style.display="none";
+    await scanAndStream(lat,lng);
   },()=>{showError("Location denied.");document.getElementById("loadingBar").style.display="none"});
 }
 
-// Auto-search on load
-setTimeout(()=>{handleSearch()},200);
+/* ═══ FIRST VISIT: detect location or prompt ═══ */
+(function init(){
+  const lastCity=localStorage.getItem("hg_last_city");
+  if(lastCity){
+    document.getElementById("zipInput").value=lastCity;
+    setTimeout(()=>handleSearch(),200);
+  }else if(navigator.geolocation){
+    // Try geolocation silently
+    navigator.geolocation.getCurrentPosition(pos=>{
+      document.getElementById("zipInput").value="📍 Current location";
+      const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      initMap(lat,lng);scanAndStream(lat,lng);
+    },()=>{
+      // Fallback: prompt them to type
+      document.getElementById("zipInput").focus();
+      toast("Search any city to find hidden gems");
+    },{timeout:5000});
+  }else{
+    document.getElementById("zipInput").focus();
+    toast("Search any city to find hidden gems");
+  }
+})();
+
+// Remember last searched city
+const _origSearch=handleSearch;
+handleSearch=async function(){
+  const q=document.getElementById("zipInput").value.trim();
+  if(q&&!q.startsWith("📍"))localStorage.setItem("hg_last_city",q);
+  return _origSearch();
+};
 </script>
 </body>
 </html>
