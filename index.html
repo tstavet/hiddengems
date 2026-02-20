@@ -423,11 +423,49 @@ function renderSaved(){
 async function geocode(q){const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;throw new Error("Location not found.")}
 
 async function fetchPlaces(lat,lng){
-  const offsets=[];const step=0.02;
-  for(let dl=-0.045;dl<=0.045;dl+=step)for(let dn=-0.045;dn<=0.045;dn+=step){if(Math.sqrt(dl*dl+dn*dn)<=0.05)offsets.push([dl,dn])}
-  const types=["restaurant","cafe","bakery"];let all=[];let n=0;const total=offsets.length*types.length;
-  for(const[dl,dn]of offsets)for(const t of types){try{n++;if(n%9===0)toast(`Scanning... ${Math.round(n/total*100)}%`);const r=await fetch(`${WORKER_URL}/nearby?lat=${(lat+dl).toFixed(6)}&lng=${(lng+dn).toFixed(6)}&radius=2500&type=${t}`);const d=await r.json();if(d.results)all=all.concat(d.results)}catch(e){}}
-  const seen=new Set();return all.filter(r=>{if(seen.has(r.place_id))return false;seen.add(r.place_id);return true});
+  // Tighter grid: 1.5km radius zones across 5-mile area
+  const offsets=[];const step=0.015;
+  for(let dl=-0.05;dl<=0.05;dl+=step)for(let dn=-0.05;dn<=0.05;dn+=step){if(Math.sqrt(dl*dl+dn*dn)<=0.055)offsets.push([dl,dn])}
+
+  // Multiple search strategies per zone to surface different results
+  const searches=[
+    {type:"restaurant",keyword:""},
+    {type:"restaurant",keyword:"dinner"},
+    {type:"restaurant",keyword:"lunch"},
+    {type:"cafe",keyword:""},
+    {type:"bakery",keyword:""},
+  ];
+
+  let all=[];let n=0;
+  const total=offsets.length*searches.length;
+  const batchSize=6; // concurrent requests
+
+  for(let i=0;i<offsets.length;i++){
+    const[dl,dn]=offsets[i];
+    const latStr=(lat+dl).toFixed(6),lngStr=(lng+dn).toFixed(6);
+
+    // Fire all searches for this zone concurrently
+    const promises=searches.map(s=>{
+      let url=`${WORKER_URL}/nearby?lat=${latStr}&lng=${lngStr}&radius=1500&type=${s.type}`;
+      if(s.keyword)url+=`&keyword=${encodeURIComponent(s.keyword)}`;
+      return fetch(url).then(r=>r.json()).then(d=>d.results||[]).catch(()=>[]);
+    });
+
+    const results=await Promise.all(promises);
+    results.forEach(r=>all=all.concat(r));
+
+    n+=searches.length;
+    if(n%(searches.length*3)===0){
+      const pct=Math.round(n/total*100);
+      toast(`Scanning... ${pct}%`);
+    }
+  }
+
+  // Deduplicate
+  const seen=new Set();
+  const deduped=all.filter(r=>{if(seen.has(r.place_id))return false;seen.add(r.place_id);return true});
+  console.log(`Grid: ${offsets.length} zones × ${searches.length} searches = ${total} calls. Found ${all.length} raw → ${deduped.length} unique`);
+  return deduped;
 }
 
 function processPlaces(places,cLat,cLng){
