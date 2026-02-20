@@ -4,192 +4,163 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Hidden Gems — Restaurants Before the Crowds</title>
-  <meta name="description" content="One tap. One hidden gem. Discover incredible restaurants nobody knows about yet." />
+  <meta name="description" content="Discover 4-star restaurants with 50-200 reviews near you. Great food, no crowds." />
   <meta name="theme-color" content="#0c0b10" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    :root {
-      --bg: #0c0b10; --surface: #16151d; --surface-2: #1e1d27;
-      --border: #2a2935; --text: #eeedf5; --text-dim: #8a889a;
-      --text-muted: #5c5a6b; --accent: #e8c547; --accent-dim: #e8c54720;
-      --accent-glow: #e8c54712; --danger: #e85a5a;
-      --radius: 20px; --radius-sm: 12px;
-      --font: 'DM Sans', system-ui, sans-serif; --mono: 'DM Mono', monospace;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    ::selection{background:var(--accent);color:var(--bg)}
-    html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-    input::placeholder{color:var(--text-muted)}
-    button{font-family:var(--font)}
-
-    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    :root{--bg:#0c0b10;--surface:#16151d;--surface-2:#1e1d27;--border:#2a2935;--text:#eeedf5;--text-dim:#8a889a;--text-muted:#5c5a6b;--accent:#e8c547;--accent-dim:#e8c54720;--accent-glow:#e8c54712;--danger:#e85a5a;--green:#34d399;--radius:20px;--radius-sm:12px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}::selection{background:var(--accent);color:var(--bg)}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    input::placeholder{color:var(--text-muted)}button{font-family:var(--font)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
     @keyframes cardFlip{0%{transform:rotateY(0) scale(1)}40%{transform:rotateY(90deg) scale(.95)}60%{transform:rotateY(90deg) scale(.95)}100%{transform:rotateY(0) scale(1)}}
     @keyframes heartPop{0%{transform:scale(1)}30%{transform:scale(1.4)}60%{transform:scale(.9)}100%{transform:scale(1)}}
 
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;animation:fadeIn .3s ease}
-    .modal{background:var(--surface);border-radius:var(--radius);padding:44px 40px;max-width:420px;width:100%;border:1px solid var(--border);box-shadow:0 40px 100px rgba(0,0,0,.6);animation:scaleIn .35s ease}
-    .modal-icon{font-size:36px;margin-bottom:20px;display:block}
-    .modal h2{font-size:24px;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-    .modal p{color:var(--text-dim);font-size:15px;line-height:1.65;margin-bottom:28px}
-    .modal input{width:100%;padding:16px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;font-family:var(--mono);outline:none;margin-bottom:20px;transition:border-color .25s}
-    .modal input:focus{border-color:var(--accent)}
-    .btn{flex:1;padding:16px 24px;border-radius:var(--radius-sm);border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;letter-spacing:-.01em}
-    .btn-accent{background:var(--accent);color:var(--bg)}.btn-accent:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn-accent:disabled{background:var(--surface-2);color:var(--text-muted);cursor:default;transform:none}
-    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--accent)}.btn-ghost:hover{background:var(--accent-glow);border-color:var(--accent)}
-
-    /* APP */
     .app{max-width:600px;margin:0 auto;padding:0 20px}
-    .header{padding:40px 0 8px;text-align:center;animation:fadeUp .5s ease}
-    .logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:4px}
-    .logo-gem{font-size:24px}.logo-text{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-family:var(--mono)}
-    .demo-pill{display:inline-block;margin-top:12px;background:var(--accent-dim);padding:6px 14px;border-radius:20px;border:1px solid var(--accent-dim);color:var(--accent);font-size:12px;font-family:var(--mono)}
+
+    /* HEADER */
+    .header{padding:32px 0 6px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s ease}
+    .logo{display:flex;align-items:center;gap:8px}
+    .logo-gem{font-size:22px}.logo-text{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-family:var(--mono)}
+    .settings-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .settings-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* SEARCH */
+    .search-row{display:flex;gap:8px;margin-bottom:14px;animation:fadeUp .5s ease .05s both}
+    .search-input{flex:1;padding:13px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;outline:none;font-family:var(--font);transition:border-color .25s}
+    .search-input:focus{border-color:var(--accent)}
+    .search-btn{padding:13px 18px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}.search-btn:hover{filter:brightness(1.1)}
+    .geo-btn{padding:13px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center}.geo-btn:hover{border-color:var(--accent);color:var(--accent)}
 
     /* MAP */
-    .map-wrap{margin-bottom:20px;animation:fadeUp .5s ease .1s both}
-    .map-container{width:100%;height:300px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);position:relative}
-    .map-container.expanded{height:500px}
+    .map-wrap{margin-bottom:14px;animation:fadeUp .5s ease .1s both}
+    .map-container{width:100%;height:260px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);position:relative}
+    .map-container.expanded{height:460px}
     #map{width:100%;height:100%;z-index:1}
-    .map-toggle{position:absolute;bottom:12px;right:12px;z-index:500;padding:8px 14px;border-radius:8px;border:none;background:var(--surface);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:all .2s}
-    .map-toggle:hover{color:var(--accent)}
-    .map-badge{position:absolute;top:12px;left:12px;z-index:500;padding:6px 14px;border-radius:8px;background:var(--surface);color:var(--accent);font-size:12px;font-weight:600;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+    .map-toggle{position:absolute;bottom:10px;right:10px;z-index:500;padding:6px 12px;border-radius:8px;border:none;background:var(--surface);color:var(--text-dim);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:all .2s}.map-toggle:hover{color:var(--accent)}
+    .map-badge{position:absolute;top:10px;left:10px;z-index:500;padding:5px 12px;border-radius:8px;background:var(--surface);color:var(--accent);font-size:11px;font-weight:600;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4)}
     .leaflet-container{background:var(--bg)}
     .leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(0,0,0,.4)!important;border:1px solid var(--border)!important}
     .leaflet-popup-tip{background:var(--surface)!important}
-    .leaflet-popup-content{margin:12px 16px!important;font-family:var(--font)!important;font-size:13px!important}
-    .popup-name{font-weight:700;font-size:15px;margin-bottom:4px}
-    .popup-meta{color:var(--text-dim);font-family:var(--mono);font-size:12px}
-    .popup-star{color:var(--accent)}
+    .leaflet-popup-content{margin:10px 14px!important;font-family:var(--font)!important;font-size:13px!important}
+    .popup-name{font-weight:700;font-size:14px;margin-bottom:3px}.popup-meta{color:var(--text-dim);font-family:var(--mono);font-size:11px}.popup-star{color:var(--accent)}
     .leaflet-popup-close-button{color:var(--text-muted)!important}
 
-    /* SEARCH */
-    .search-row{display:flex;gap:8px;margin-bottom:16px;animation:fadeUp .5s ease .15s both}
-    .search-input{flex:1;padding:14px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;outline:none;font-family:var(--font);transition:border-color .25s}
-    .search-input:focus{border-color:var(--accent)}
-    .search-btn{padding:14px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}.search-btn:hover{filter:brightness(1.1)}
-    .geo-btn{padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center}.geo-btn:hover{border-color:var(--accent);color:var(--accent)}
-
-    /* MOODS */
-    .moods{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .5s ease .2s both}
-    .mood{width:52px;height:52px;border-radius:16px;border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;gap:2px}
-    .mood:hover{border-color:var(--text-muted);transform:translateY(-2px)}
-    .mood.active{border-color:var(--accent);background:var(--accent-dim);transform:translateY(-2px);box-shadow:0 4px 16px var(--accent-glow)}
-    .mood-icon{font-size:20px;line-height:1}.mood-label{font-size:8px;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;font-weight:500}
-    .mood.active .mood-label{color:var(--accent)}
+    /* FILTERS */
+    .filters-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;animation:fadeUp .5s ease .15s both;align-items:center}
+    .filter-pill{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s;white-space:nowrap}
+    .filter-pill:hover{border-color:var(--text-muted)}
+    .filter-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+    .filter-divider{width:1px;height:20px;background:var(--border);margin:0 4px}
 
     /* TABS */
-    .tabs{display:flex;gap:4px;justify-content:center;margin:0 0 20px;animation:fadeUp .5s ease .1s both}
-    .tab{padding:10px 22px;border-radius:40px;border:none;background:transparent;color:var(--text-muted);font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;letter-spacing:-.01em}
+    .tabs{display:flex;gap:4px;justify-content:center;margin:14px 0 16px;animation:fadeUp .5s ease .1s both}
+    .tab{padding:9px 20px;border-radius:40px;border:none;background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s}
     .tab:hover{color:var(--text-dim)}.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,.2)}
 
     /* SURPRISE */
-    .surprise-section{animation:fadeUp .5s ease .15s both;padding-bottom:40px}
-    .surprise-card{background:var(--surface);border-radius:24px;overflow:hidden;border:1px solid var(--border);position:relative;perspective:1000px;min-height:300px;display:flex;flex-direction:column}
+    .surprise-section{animation:fadeUp .5s ease;padding-bottom:32px}
+    .surprise-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1px solid var(--border);position:relative;min-height:280px;display:flex;flex-direction:column}
     .surprise-card.flipping{animation:cardFlip .6s ease}
-    .surprise-top{padding:36px 28px 20px;flex:1;display:flex;flex-direction:column;position:relative}
-    .surprise-eyebrow{font-size:11px;font-family:var(--mono);color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-    .surprise-name{font-size:28px;font-weight:700;letter-spacing:-.04em;line-height:1.15;margin-bottom:12px}
-    .surprise-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-    .surprise-cuisine{font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase}
-    .surprise-stats{display:flex;align-items:center;gap:14px;color:var(--text-dim);font-size:14px;font-family:var(--mono)}
-    .surprise-star{color:var(--accent)}.surprise-address{color:var(--text-muted);font-size:14px;line-height:1.5;margin-top:auto}
-    .surprise-gem-badge{position:absolute;top:28px;right:28px;display:flex;align-items:center;gap:8px}
-    .gem-ring{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-    .gem-ring-inner{width:40px;height:40px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--accent);font-family:var(--mono)}
+    .surprise-photo{width:100%;height:180px;object-fit:cover;display:block;background:var(--surface-2)}
+    .surprise-photo-placeholder{width:100%;height:120px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:40px;opacity:.3}
+    .surprise-body{padding:24px 24px 16px;flex:1;display:flex;flex-direction:column;position:relative}
+    .surprise-gem-badge{position:absolute;top:-28px;right:20px;z-index:2}
+    .gem-ring{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
+    .gem-ring-inner{width:38px;height:38px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);font-family:var(--mono)}
+    .surprise-name{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px}
+    .surprise-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase}
+    .surprise-stats{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13px;font-family:var(--mono);margin-bottom:6px}
+    .star{color:var(--accent)}
+    .open-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+    .open-badge.open{background:#34d39920;color:var(--green)}.open-badge.closed{background:#e85a5a15;color:var(--danger)}
+    .surprise-gem-line{color:var(--accent);font-size:13px;font-style:italic;margin-bottom:8px;opacity:.9}
+    .surprise-address{color:var(--text-muted);font-size:13px;margin-top:auto}
     .surprise-actions{display:flex;border-top:1px solid var(--border)}
-    .surprise-action{flex:1;padding:16px;border:none;background:transparent;color:var(--text-dim);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .surprise-action{flex:1;padding:14px;border:none;background:transparent;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
     .surprise-action:hover{background:var(--surface-2);color:var(--text)}.surprise-action+.surprise-action{border-left:1px solid var(--border)}
     .surprise-action.saved{color:var(--danger)}.surprise-action.saved .heart-icon{animation:heartPop .35s ease}
-    .surprise-big-btn{width:100%;padding:18px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;margin-top:16px;transition:all .3s;letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;gap:10px}
-    .surprise-big-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 4px 24px var(--accent-glow);transform:translateY(-2px)}
+    .surprise-big-btn{width:100%;padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px}
+    .surprise-big-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 4px 20px var(--accent-glow);transform:translateY(-2px)}
     .surprise-big-btn:hover .dice{transform:rotate(20deg)}.surprise-big-btn .dice{display:inline-block;transition:transform .3s}
-    .surprise-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}.surprise-empty-icon{font-size:48px;display:block;margin-bottom:16px;opacity:.6}
+    .surprise-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}.surprise-empty-icon{font-size:44px;display:block;margin-bottom:14px;opacity:.5}
 
-    /* LIST */
-    .list-section{animation:fadeUp .4s ease;padding-bottom:40px}
-    .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-    .list-count{color:var(--text-dim);font-size:14px}.list-count strong{color:var(--text)}
-    .sort-pills{display:flex;gap:6px}
-    .sort-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s}
+    /* CARDS */
+    .list-section,.saved-section{animation:fadeUp .4s ease;padding-bottom:32px}
+    .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+    .list-count{color:var(--text-dim);font-size:13px}.list-count strong{color:var(--text)}
+    .sort-pills{display:flex;gap:5px}
+    .sort-pill{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s}
     .sort-pill:hover{border-color:var(--text-muted)}.sort-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
     .card-list{display:flex;flex-direction:column;gap:10px}
-    .card{background:var(--surface);border-radius:var(--radius);padding:22px 24px;border:1px solid var(--border);transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
-    .card:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+    .card{background:var(--surface);border-radius:16px;border:1px solid var(--border);transition:all .3s;cursor:pointer;overflow:hidden}
+    .card:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+    .card-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2)}
+    .card-body{padding:16px 20px}
     .card-row{display:flex;justify-content:space-between;align-items:flex-start}
-    .card h3{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
-    .card-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-    .card-cuisine{font-size:10px;font-weight:600;padding:3px 10px;border-radius:16px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
-    .card-price{color:var(--text-muted);font-size:12px;font-family:var(--mono)}
-    .card-stats{display:flex;align-items:center;gap:12px;font-size:13px;font-family:var(--mono);color:var(--text-dim)}.card-stats .star{color:var(--accent)}
-    .card-address{color:var(--text-muted);font-size:13px;margin-top:8px}
-    .card-actions{display:flex;gap:8px;align-items:flex-start;margin-left:12px;flex-shrink:0}
-    .card-action-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;color:var(--text-muted)}
+    .card h3{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+    .card-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+    .card-cuisine{font-size:9px;font-weight:600;padding:2px 8px;border-radius:12px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+    .card-price{color:var(--text-muted);font-size:11px;font-family:var(--mono)}
+    .card-stats{display:flex;align-items:center;gap:10px;font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-bottom:4px}
+    .card-gem-line{color:var(--accent);font-size:12px;font-style:italic;margin-bottom:6px;opacity:.85}
+    .card-address{color:var(--text-muted);font-size:12px}
+    .card-actions{display:flex;gap:6px;align-items:flex-start;margin-left:10px;flex-shrink:0}
+    .card-action-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;color:var(--text-muted)}
     .card-action-btn:hover{border-color:var(--text-muted)}.card-action-btn.saved{border-color:var(--danger);color:var(--danger);background:#e85a5a12}
 
-    /* SAVED */
-    .saved-section{animation:fadeUp .4s ease;padding-bottom:40px}
-    .saved-empty{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:15px}.saved-empty-icon{font-size:40px;display:block;margin-bottom:12px;opacity:.5}
+    .saved-empty{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px}.saved-empty-icon{font-size:36px;display:block;margin-bottom:10px;opacity:.5}
 
     /* MISC */
-    .error-bar{padding:14px 18px;border-radius:var(--radius-sm);background:#e85a5a12;border:1px solid #e85a5a25;color:var(--danger);font-size:14px;text-align:center;margin-bottom:16px;animation:fadeIn .3s ease}
-    .loading-bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-bottom:20px}.loading-bar-inner{height:100%;width:40%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent),transparent);animation:shimmer 1.2s ease infinite;background-size:200% 100%}
-    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-2);color:var(--text);padding:14px 24px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:14px;font-weight:500;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-    footer{text-align:center;padding:32px 20px 40px;color:var(--text-muted);font-size:12px}
-    @media(max-width:480px){.surprise-name{font-size:24px}.surprise-top{padding:28px 20px 16px}.surprise-gem-badge{top:20px;right:20px}.modal{padding:32px 24px}.mood{width:46px;height:46px;border-radius:14px}.map-container{height:240px}.map-container.expanded{height:400px}}
+    .error-bar{padding:12px 16px;border-radius:var(--radius-sm);background:#e85a5a12;border:1px solid #e85a5a25;color:var(--danger);font-size:13px;text-align:center;margin-bottom:14px;animation:fadeIn .3s ease}
+    .loading-bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-bottom:16px}.loading-bar-inner{height:100%;width:40%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent),transparent);animation:shimmer 1.2s ease infinite;background-size:200% 100%}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-2);color:var(--text);padding:12px 22px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:13px;font-weight:500;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;animation:fadeIn .3s ease}
+    .modal{background:var(--surface);border-radius:var(--radius);padding:36px 32px;max-width:400px;width:100%;border:1px solid var(--border);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+    .modal h2{font-size:20px;font-weight:700;margin-bottom:8px}.modal p{color:var(--text-dim);font-size:14px;line-height:1.6;margin-bottom:20px}
+    .modal input{width:100%;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;margin-bottom:16px}.modal input:focus{border-color:var(--accent)}
+    .btn{padding:14px 20px;border-radius:var(--radius-sm);border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s}
+    .btn-accent{background:var(--accent);color:var(--bg)}.btn-accent:hover{filter:brightness(1.1)}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--accent)}.btn-ghost:hover{background:var(--accent-glow)}
+    footer{text-align:center;padding:24px 20px 36px;color:var(--text-muted);font-size:11px}
+    @media(max-width:480px){.surprise-name{font-size:20px}.surprise-body{padding:20px 18px 12px}.map-container{height:200px}.map-container.expanded{height:360px}.card-photo{height:110px}.surprise-photo{height:140px}}
   </style>
 </head>
 <body>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
+<!-- Settings modal (hidden) -->
+<div class="modal-overlay" id="settingsModal" style="display:none">
   <div class="modal">
-    <span class="modal-icon">💎</span>
-    <h2>Hidden Gems</h2>
-    <p>Discover incredible restaurants nobody knows about yet. Search real spots or explore with sample data.</p>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <button class="btn btn-accent" onclick="startLive()" style="width:100%">🔍 Search Nashville</button>
-      <button class="btn btn-ghost" onclick="startDemo()" style="width:100%">Try Demo Data</button>
-    </div>
-    <p style="margin-top:16px;font-size:12px;color:var(--text-muted);text-align:center">
-      <a href="#" onclick="event.preventDefault();showWorkerConfig()" style="color:var(--text-dim);text-decoration:underline">Configure API endpoint</a>
-    </p>
-  </div>
-</div>
-<div class="modal-overlay" id="workerModal" style="display:none">
-  <div class="modal">
-    <span class="modal-icon">⚙️</span>
-    <h2>API Configuration</h2>
-    <p>Enter your Cloudflare Worker URL.</p>
+    <h2>⚙️ Settings</h2>
+    <p>Cloudflare Worker URL for API requests.</p>
     <input type="text" id="workerUrlInput" placeholder="https://hidden-gems-api.tstavet.workers.dev" />
-    <div style="display:flex;gap:12px">
-      <button class="btn btn-accent" onclick="saveWorkerUrl()">Save</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('workerModal').style.display='none'">Cancel</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-accent" onclick="saveWorkerUrl()" style="flex:1">Save</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('settingsModal').style.display='none'" style="flex:1">Cancel</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- APP -->
-<div class="app" id="app" style="display:none">
+<div class="app">
+  <!-- HEADER -->
   <div class="header">
     <div class="logo"><span class="logo-gem">💎</span><span class="logo-text">Hidden Gems</span></div>
-    <div class="demo-pill" id="demoPill" style="display:none">Demo Mode</div>
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
-  <div id="searchArea" style="display:none">
-    <div class="search-row">
-      <input class="search-input" id="zipInput" placeholder="Zip code or city..." value="Nashville, TN" />
-      <button class="search-btn" id="searchBtn" onclick="handleSearch()">Find</button>
-      <button class="geo-btn" onclick="handleGeo()" title="Use my location">📍</button>
-    </div>
+  <!-- SEARCH -->
+  <div class="search-row">
+    <input class="search-input" id="zipInput" placeholder="City, zip, or address..." value="Nashville, TN" />
+    <button class="search-btn" id="searchBtn" onclick="handleSearch()">Find</button>
+    <button class="geo-btn" onclick="handleGeo()" title="Use my location">📍</button>
   </div>
 
   <!-- MAP -->
@@ -201,38 +172,44 @@
     </div>
   </div>
 
-  <div class="moods" id="moodsBar">
-    <button class="mood" data-cuisine="asian" onclick="toggleMood(this)"><span class="mood-icon">🍜</span><span class="mood-label">Asian</span></button>
-    <button class="mood" data-cuisine="italian" onclick="toggleMood(this)"><span class="mood-icon">🍕</span><span class="mood-label">Italian</span></button>
-    <button class="mood" data-cuisine="mexican" onclick="toggleMood(this)"><span class="mood-icon">🌮</span><span class="mood-label">Mexican</span></button>
-    <button class="mood" data-cuisine="japanese" onclick="toggleMood(this)"><span class="mood-icon">🍣</span><span class="mood-label">Japanese</span></button>
-    <button class="mood" data-cuisine="healthy" onclick="toggleMood(this)"><span class="mood-icon">🥗</span><span class="mood-label">Healthy</span></button>
-    <button class="mood" data-cuisine="bakery" onclick="toggleMood(this)"><span class="mood-icon">🍰</span><span class="mood-label">Bakery</span></button>
-    <button class="mood" data-cuisine="bbq" onclick="toggleMood(this)"><span class="mood-icon">🔥</span><span class="mood-label">BBQ</span></button>
-    <button class="mood" data-cuisine="seafood" onclick="toggleMood(this)"><span class="mood-icon">🦐</span><span class="mood-label">Seafood</span></button>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" data-view="surprise" onclick="switchView('surprise',this)">Surprise Me</button>
-    <button class="tab" data-view="list" onclick="switchView('list',this)">All Gems</button>
-    <button class="tab" data-view="saved" onclick="switchView('saved',this)">Saved</button>
+  <!-- FILTERS: cuisine (multi-select) + price -->
+  <div class="filters-row" id="filtersRow">
+    <button class="filter-pill" data-cuisine="asian" onclick="toggleCuisine(this)">🍜 Asian</button>
+    <button class="filter-pill" data-cuisine="italian" onclick="toggleCuisine(this)">🍕 Italian</button>
+    <button class="filter-pill" data-cuisine="mexican" onclick="toggleCuisine(this)">🌮 Mexican</button>
+    <button class="filter-pill" data-cuisine="japanese" onclick="toggleCuisine(this)">🍣 Japanese</button>
+    <button class="filter-pill" data-cuisine="healthy" onclick="toggleCuisine(this)">🥗 Healthy</button>
+    <button class="filter-pill" data-cuisine="bakery" onclick="toggleCuisine(this)">🍰 Bakery</button>
+    <button class="filter-pill" data-cuisine="bbq" onclick="toggleCuisine(this)">🔥 BBQ</button>
+    <button class="filter-pill" data-cuisine="seafood" onclick="toggleCuisine(this)">🦐 Seafood</button>
+    <div class="filter-divider"></div>
+    <button class="filter-pill" data-price="1" onclick="togglePrice(this)">$</button>
+    <button class="filter-pill" data-price="2" onclick="togglePrice(this)">$$</button>
+    <button class="filter-pill" data-price="3" onclick="togglePrice(this)">$$$</button>
   </div>
 
   <div id="errorMsg" class="error-bar" style="display:none"></div>
   <div id="loadingBar" class="loading-bar" style="display:none"><div class="loading-bar-inner"></div></div>
 
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('surprise',this)">Surprise Me</button>
+    <button class="tab" onclick="switchView('list',this)">All Gems</button>
+    <button class="tab" onclick="switchView('saved',this)">Saved</button>
+  </div>
+
+  <!-- SURPRISE -->
   <div class="surprise-section" id="viewSurprise">
     <div class="surprise-card" id="surpriseCard">
-      <div class="surprise-empty" id="surpriseEmpty"><span class="surprise-empty-icon">🎲</span><p>Hit the button below to discover your first hidden gem</p></div>
+      <div class="surprise-empty" id="surpriseEmpty"><span class="surprise-empty-icon">🎲</span><p>Tap Surprise Me to discover a hidden gem</p></div>
       <div id="surpriseContent" style="display:none">
-        <div class="surprise-top">
-          <div class="surprise-eyebrow" id="sEyebrow">Hidden gem near you</div>
+        <img class="surprise-photo" id="sPhoto" alt="" />
+        <div class="surprise-body">
           <div class="surprise-gem-badge"><div class="gem-ring" id="sGemRing"><div class="gem-ring-inner" id="sGemScore"></div></div></div>
           <h2 class="surprise-name" id="sName"></h2>
-          <div class="surprise-meta">
-            <span class="surprise-cuisine" id="sCuisine"></span>
-            <div class="surprise-stats"><span><span class="surprise-star">★</span> <span id="sRating"></span></span><span>·</span><span id="sReviews"></span></div>
-          </div>
+          <div class="surprise-meta"><span class="tag" id="sCuisine"></span><span class="open-badge" id="sOpen"></span></div>
+          <div class="surprise-stats"><span><span class="star">★</span> <span id="sRating"></span></span><span>·</span><span id="sReviews"></span><span>·</span><span id="sDistance"></span></div>
+          <p class="surprise-gem-line" id="sGemLine"></p>
           <p class="surprise-address" id="sAddress"></p>
         </div>
         <div class="surprise-actions">
@@ -245,125 +222,136 @@
     <button class="surprise-big-btn" onclick="rollSurprise()"><span class="dice">🎲</span> Surprise Me</button>
   </div>
 
+  <!-- LIST -->
   <div class="list-section" id="viewList" style="display:none">
-    <div class="list-header">
-      <span class="list-count" id="listCount"></span>
+    <div class="list-header"><span class="list-count" id="listCount"></span>
       <div class="sort-pills">
         <button class="sort-pill active" onclick="setSort('gem',this)">Gem</button>
         <button class="sort-pill" onclick="setSort('rating',this)">Rating</button>
-        <button class="sort-pill" onclick="setSort('reviews',this)">Fewest</button>
+        <button class="sort-pill" onclick="setSort('nearest',this)">Nearest</button>
       </div>
     </div>
     <div class="card-list" id="cardList"></div>
   </div>
 
+  <!-- SAVED -->
   <div class="saved-section" id="viewSaved" style="display:none">
     <div class="list-header"><span class="list-count" id="savedCount"></span></div>
     <div class="card-list" id="savedList"></div>
   </div>
 </div>
 
-<footer>Hidden Gems V2 — 4★+ restaurants with 50-200 reviews near you</footer>
+<footer>Hidden Gems — 4★+ restaurants · 50-200 reviews · near you</footer>
 
 <script>
-window.onerror = function(msg,url,line){console.error("JS Error:",msg,"line",line);var el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+msg;el.style.display="block"}};
-
-const DEMO = [
-  {name:"Mama Lua's Kitchen",rating:4.6,reviewCount:87,cuisine:"Brazilian",priceLevel:2,address:"412 Gallatin Ave, Nashville, TN",placeId:"demo1",cuisineGroup:"mexican",lat:36.1845,lng:-86.7488},
-  {name:"Taste of Casablanca",rating:4.4,reviewCount:112,cuisine:"Moroccan",priceLevel:2,address:"1900 Eastland Ave, Nashville, TN",placeId:"demo2",cuisineGroup:"healthy",lat:36.178,lng:-86.735},
-  {name:"Sichuan Corner",rating:4.7,reviewCount:64,cuisine:"Chinese",priceLevel:1,address:"2105 8th Ave S, Nashville, TN",placeId:"demo3",cuisineGroup:"asian",lat:36.142,lng:-86.778},
-  {name:"Nonna's Hideaway",rating:4.3,reviewCount:143,cuisine:"Italian",priceLevel:3,address:"305 Demonbreun St, Nashville, TN",placeId:"demo4",cuisineGroup:"italian",lat:36.1565,lng:-86.7745},
-  {name:"Bún Mì Saigon",rating:4.8,reviewCount:78,cuisine:"Vietnamese",priceLevel:1,address:"1222 Nolensville Pike, Nashville, TN",placeId:"demo5",cuisineGroup:"asian",lat:36.138,lng:-86.765},
-  {name:"The Olive Yard",rating:4.5,reviewCount:92,cuisine:"Mediterranean",priceLevel:2,address:"600 12th Ave S, Nashville, TN",placeId:"demo6",cuisineGroup:"healthy",lat:36.152,lng:-86.789},
-  {name:"Empanada Express",rating:4.2,reviewCount:167,cuisine:"Argentine",priceLevel:1,address:"3401 Charlotte Ave, Nashville, TN",placeId:"demo7",cuisineGroup:"mexican",lat:36.161,lng:-86.82},
-  {name:"Sakura Ramen House",rating:4.9,reviewCount:55,cuisine:"Japanese Ramen",priceLevel:2,address:"152 2nd Ave N, Nashville, TN",placeId:"demo8",cuisineGroup:"japanese",lat:36.164,lng:-86.776},
-  {name:"Aunt Peg's Pies",rating:4.1,reviewCount:133,cuisine:"Southern Bakery",priceLevel:1,address:"708 Main St, Nashville, TN",placeId:"demo9",cuisineGroup:"bakery",lat:36.159,lng:-86.781},
-  {name:"Harissa",rating:4.6,reviewCount:69,cuisine:"Tunisian",priceLevel:2,address:"2000 Belmont Blvd, Nashville, TN",placeId:"demo10",cuisineGroup:"healthy",lat:36.134,lng:-86.792},
-  {name:"Taco Cielo",rating:4.5,reviewCount:115,cuisine:"Mexican Street",priceLevel:1,address:"910 Dickerson Pike, Nashville, TN",placeId:"demo11",cuisineGroup:"mexican",lat:36.189,lng:-86.779},
-  {name:"The Smoking Oak",rating:4.4,reviewCount:128,cuisine:"Texas BBQ",priceLevel:2,address:"1515 Woodland St, Nashville, TN",placeId:"demo12",cuisineGroup:"bbq",lat:36.172,lng:-86.758},
-  {name:"Pearl Oyster Bar",rating:4.7,reviewCount:61,cuisine:"Seafood",priceLevel:3,address:"1800 Division St, Nashville, TN",placeId:"demo13",cuisineGroup:"seafood",lat:36.153,lng:-86.798},
-  {name:"Green Tara Bowl",rating:4.3,reviewCount:102,cuisine:"Vegan",priceLevel:2,address:"2200 12th Ave S, Nashville, TN",placeId:"demo14",cuisineGroup:"healthy",lat:36.126,lng:-86.79},
-];
-
-const CUISINE_COLORS={Brazilian:"#2ecc71",Moroccan:"#e67e22",Chinese:"#e74c3c",Italian:"#9b59b6",Vietnamese:"#1abc9c",Mediterranean:"#3498db",Argentine:"#f39c12","Japanese Ramen":"#e91e63","Southern Bakery":"#ff9ff3",Tunisian:"#fd79a8","Mexican Street":"#00b894","Texas BBQ":"#d63031",Seafood:"#0984e3",Vegan:"#00cec9",Restaurant:"#636e72",Bar:"#636e72",Cafe:"#a29bfe",default:"#636e72"};
-const CUISINE_MAP={asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry"],italian:["italian","pizza","pasta","trattoria","gelato"],mexican:["mexican","taco","burrito","taqueria","latin","cuban","empanada","brazilian","argentine","peruvian"],japanese:["japanese","sushi","ramen","udon","hibachi","poke","bento"],healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","moroccan","tunisian"],bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","tea house","muffin"],bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole"],seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar","catch"]};
+window.onerror=function(m,u,l){console.error("JS Error:",m,"line",l);const el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+m;el.style.display="block"}};
 
 let WORKER_URL=localStorage.getItem("hg_worker_url")||"https://hidden-gems-api.tstavet.workers.dev";
-let mode=null,allGems=[],savedIds=new Set(),sortBy="gem",currentView="surprise",activeMood=null,currentSurprise=null;
-let leafletMap=null,mapMarkers=[],searchCenter=null;
+let allGems=[],savedIds=new Set(),sortBy="gem",currentView="surprise",currentSurprise=null;
+let activeCuisines=new Set(),activePrices=new Set();
+let leafletMap=null,mapMarkers=[],searchCenter=null,userLat=null,userLng=null;
+
+const CUISINE_KW={asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry","dim sum","dumpling","teriyaki","szechuan","sichuan","boba"],japanese:["japanese","sushi","ramen","udon","tempura","hibachi","izakaya","tonkatsu","yakitori","bento","poke"],italian:["italian","pizza","pasta","trattoria","ristorante","gelato","panini"],mexican:["mexican","taco","burrito","taqueria","latin","cuban","empanada","brazilian","argentine","peruvian","ceviche","colombian","churrasco","pupusa","arepa"],healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","organic","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian"],bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","muffin","cinnamon","tea house"],bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole"],seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar"]};
+const CUISINE_COLORS={asian:"#e74c3c",japanese:"#e91e63",italian:"#9b59b6",mexican:"#00b894",healthy:"#00cec9",bakery:"#a29bfe",bbq:"#d63031",seafood:"#0984e3",default:"#636e72"};
 
 function loadSaved(){try{const s=localStorage.getItem("hg_saved");if(s)savedIds=new Set(JSON.parse(s))}catch(e){}}
 function persistSaved(){try{localStorage.setItem("hg_saved",JSON.stringify([...savedIds]))}catch(e){}}
 loadSaved();
 
-function showWorkerConfig(){document.getElementById("workerUrlInput").value=WORKER_URL.includes("YOURNAME")?"":WORKER_URL;document.getElementById("workerModal").style.display="flex"}
-function saveWorkerUrl(){const v=document.getElementById("workerUrlInput").value.trim().replace(/\/+$/,"");if(!v)return;WORKER_URL=v;localStorage.setItem("hg_worker_url",v);document.getElementById("workerModal").style.display="none";toast("API endpoint saved")}
+function openSettings(){document.getElementById("workerUrlInput").value=WORKER_URL;document.getElementById("settingsModal").style.display="flex"}
+function saveWorkerUrl(){const v=document.getElementById("workerUrlInput").value.trim().replace(/\/+$/,"");if(!v)return;WORKER_URL=v;localStorage.setItem("hg_worker_url",v);document.getElementById("settingsModal").style.display="none";toast("Saved")}
 
 document.getElementById("zipInput").addEventListener("keydown",e=>{if(e.key==="Enter")handleSearch()});
 
-function gemScore(r,rc){return Math.max(0,Math.min(100,Math.round((r*20)-(rc*0.2))))}
+/* HELPERS */
+function gemScore(r,rc){return Math.max(0,Math.min(100,Math.round((r*20)-(rc*0.15))))}
 function priceStr(n){return n?"$".repeat(n):""}
-function getColor(c){return CUISINE_COLORS[c]||CUISINE_COLORS.default}
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2200)}
+function getColor(group){return CUISINE_COLORS[group]||CUISINE_COLORS.default}
+function photoUrl(ref,w){return ref?`${WORKER_URL}/photo?ref=${ref}&maxwidth=${w||400}`:"";}
+function distanceMi(lat1,lng1,lat2,lng2){if(!lat1||!lat2)return null;const R=3959,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function fmtDist(d){if(!d&&d!==0)return"";return d<0.1?"Nearby":d<1?`${(d*5280/100).toFixed(0)}00 ft`:`${d.toFixed(1)} mi`}
+function gemLine(r){
+  const rc=r.reviewCount,rt=r.rating;
+  if(rt>=4.8&&rc<80)return`${rt} stars from just ${rc} reviews — a rare find`;
+  if(rt>=4.7)return`One of the highest-rated hidden spots nearby`;
+  if(rc<80)return`Only ${rc} reviews — most people haven't found this yet`;
+  if(rc<120)return`Flying under the radar with ${rc} reviews and counting`;
+  if(rt>=4.5)return`Quietly excellent — ${rt} stars before the crowds arrive`;
+  return`A solid ${rt}-star spot the algorithm hasn't pushed yet`;
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2400)}
 function showError(msg){const el=document.getElementById("errorMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",5000)}
 
 /* MAP */
 function initMap(lat,lng){
-  searchCenter=[lat,lng];
+  searchCenter=[lat,lng];userLat=lat;userLng=lng;
   document.getElementById("mapWrap").style.display="block";
   if(leafletMap){leafletMap.remove();leafletMap=null}
   leafletMap=L.map("map",{zoomControl:false,attributionControl:false}).setView([lat,lng],13);
   L.control.zoom({position:"topright"}).addTo(leafletMap);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd"}).addTo(leafletMap);
-  L.circle([lat,lng],{radius:8047,color:"#e8c547",fillColor:"#e8c547",fillOpacity:.04,weight:1,opacity:.3,dashArray:"6 4"}).addTo(leafletMap);
+  L.circle([lat,lng],{radius:8047,color:"#e8c547",fillColor:"#e8c547",fillOpacity:.03,weight:1,opacity:.25,dashArray:"6 4"}).addTo(leafletMap);
+  // User location marker
+  L.circleMarker([lat,lng],{radius:6,color:"#e8c547",fillColor:"#e8c547",fillOpacity:1,weight:2}).addTo(leafletMap).bindPopup("<div style='font-family:var(--mono);font-size:12px;color:var(--text)'>📍 You are here</div>");
 }
-
 function updateMapMarkers(){
   if(!leafletMap)return;
-  mapMarkers.forEach(m=>leafletMap.removeLayer(m));
-  mapMarkers=[];
-  const filtered=getFilteredGems();
+  mapMarkers.forEach(m=>leafletMap.removeLayer(m));mapMarkers=[];
+  const filtered=getFiltered();
   document.getElementById("mapBadge").textContent=`${filtered.length} gems`;
-  const icon=L.divIcon({className:"",html:'<div style="width:28px;height:28px;background:#e8c547;border-radius:50%;border:3px solid #0c0b10;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(232,197,71,.4)">💎</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-16]});
+  const icon=L.divIcon({className:"",html:'<div style="width:26px;height:26px;background:#e8c547;border-radius:50%;border:3px solid #0c0b10;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(232,197,71,.4)">💎</div>',iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-15]});
   filtered.forEach(r=>{
     if(!r.lat||!r.lng)return;
     const m=L.marker([r.lat,r.lng],{icon}).addTo(leafletMap);
-    m.bindPopup(`<div class="popup-name">${r.name}</div><div class="popup-meta"><span class="popup-star">★</span> ${r.rating} · ${r.reviewCount} reviews · ${r.cuisine}</div><div style="margin-top:8px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name+" "+r.address)}" target="_blank" style="color:#e8c547;font-size:12px;font-weight:600;text-decoration:none">Navigate →</a></div>`,{maxWidth:250});
+    const d=r.distance?fmtDist(r.distance):"";
+    m.bindPopup(`<div class="popup-name">${r.name}</div><div class="popup-meta"><span class="popup-star">★</span> ${r.rating} · ${r.reviewCount} rev${d?" · "+d:""}</div><div style="margin-top:6px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name+" "+r.address)}" target="_blank" style="color:#e8c547;font-size:11px;font-weight:600;text-decoration:none">Navigate →</a></div>`,{maxWidth:240});
     mapMarkers.push(m);
   });
   if(mapMarkers.length>0)leafletMap.fitBounds(L.featureGroup(mapMarkers).getBounds().pad(0.1));
   else if(searchCenter)leafletMap.setView(searchCenter,13);
 }
+function toggleMapSize(){const c=document.getElementById("mapContainer"),b=document.getElementById("mapToggle");c.classList.toggle("expanded");b.textContent=c.classList.contains("expanded")?"Collapse":"Expand";setTimeout(()=>leafletMap.invalidateSize(),300)}
 
-function toggleMapSize(){
-  const c=document.getElementById("mapContainer"),b=document.getElementById("mapToggle");
-  c.classList.toggle("expanded");b.textContent=c.classList.contains("expanded")?"Collapse":"Expand";
-  setTimeout(()=>leafletMap.invalidateSize(),300);
-}
-
-/* MOOD FILTER */
-function toggleMood(btn){
+/* FILTERS */
+function toggleCuisine(btn){
   const c=btn.dataset.cuisine;
-  if(activeMood===c){activeMood=null;btn.classList.remove("active")}
-  else{document.querySelectorAll(".mood").forEach(m=>m.classList.remove("active"));activeMood=c;btn.classList.add("active")}
-  renderCurrentView();updateMapMarkers();
+  if(activeCuisines.has(c)){activeCuisines.delete(c);btn.classList.remove("active")}
+  else{activeCuisines.add(c);btn.classList.add("active")}
+  applyFilters();
 }
-function getFilteredGems(){
-  if(!activeMood)return allGems;
-  const keywords=CUISINE_MAP[activeMood]||[activeMood];
-  return allGems.filter(g=>{
-    const hay=(g.cuisine+" "+(g.cuisineGroup||")")).toLowerCase()+" "+g.name.toLowerCase();
-    return keywords.some(k=>hay.includes(k));
-  });
+function togglePrice(btn){
+  const p=parseInt(btn.dataset.price);
+  if(activePrices.has(p)){activePrices.delete(p);btn.classList.remove("active")}
+  else{activePrices.add(p);btn.classList.add("active")}
+  applyFilters();
+}
+function applyFilters(){renderCurrentView();updateMapMarkers()}
+
+function getFiltered(){
+  let list=allGems;
+  if(activeCuisines.size>0){
+    list=list.filter(g=>{
+      const hay=(g.cuisine+" "+(g.cuisineGroup||"")+" "+g.name).toLowerCase();
+      for(const c of activeCuisines){
+        const kws=CUISINE_KW[c]||[c];
+        if(kws.some(k=>hay.includes(k)))return true;
+      }
+      return false;
+    });
+  }
+  if(activePrices.size>0){
+    list=list.filter(g=>activePrices.has(g.priceLevel));
+  }
+  return list;
 }
 
 /* SORTING */
-function getSorted(list){return[...list].sort((a,b)=>{if(sortBy==="rating")return b.rating-a.rating;if(sortBy==="reviews")return a.reviewCount-b.reviewCount;return gemScore(b.rating,b.reviewCount)-gemScore(a.rating,a.reviewCount)})}
+function getSorted(list){return[...list].sort((a,b)=>{if(sortBy==="rating")return b.rating-a.rating;if(sortBy==="nearest")return(a.distance||99)-(b.distance||99);return gemScore(b.rating,b.reviewCount)-gemScore(a.rating,a.reviewCount)})}
 function setSort(s,btn){sortBy=s;document.querySelectorAll(".sort-pill").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderList()}
 
 /* VIEWS */
-function switchView(view,tabBtn){
-  currentView=view;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));tabBtn.classList.add("active");
+function switchView(view,btn){
+  currentView=view;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));btn.classList.add("active");
   document.getElementById("viewSurprise").style.display=view==="surprise"?"block":"none";
   document.getElementById("viewList").style.display=view==="list"?"block":"none";
   document.getElementById("viewSaved").style.display=view==="saved"?"block":"none";
@@ -373,41 +361,54 @@ function renderCurrentView(){if(currentView==="list")renderList();else if(curren
 
 /* SURPRISE */
 function rollSurprise(){
-  const pool=getFilteredGems();
-  if(!pool.length){document.getElementById("surpriseEmpty").style.display="block";document.getElementById("surpriseContent").style.display="none";document.getElementById("surpriseEmpty").querySelector("p").textContent=activeMood?"No gems match this cuisine.":"No gems found. Search a location.";return}
+  const pool=getFiltered();
+  if(!pool.length){document.getElementById("surpriseEmpty").style.display="block";document.getElementById("surpriseContent").style.display="none";document.getElementById("surpriseEmpty").querySelector("p").textContent=activeCuisines.size?"No gems match those filters.":"No gems found. Try searching a location.";return}
   currentSurprise=pool[Math.floor(Math.random()*pool.length)];
   const card=document.getElementById("surpriseCard");card.classList.add("flipping");
-  setTimeout(()=>{updateSurpriseCard(currentSurprise);document.getElementById("surpriseEmpty").style.display="none";document.getElementById("surpriseContent").style.display="block"},240);
+  setTimeout(()=>{fillSurprise(currentSurprise);document.getElementById("surpriseEmpty").style.display="none";document.getElementById("surpriseContent").style.display="block"},240);
   setTimeout(()=>card.classList.remove("flipping"),600);
 }
-function updateSurpriseCard(r){
-  const c=getColor(r.cuisine),gs=gemScore(r.rating,r.reviewCount);
+function fillSurprise(r){
+  const c=getColor(r.cuisineGroup),gs=gemScore(r.rating,r.reviewCount);
+  const photo=document.getElementById("sPhoto");
+  if(r.photoRef){photo.src=photoUrl(r.photoRef,600);photo.style.display="block"}else{photo.style.display="none"}
   document.getElementById("sName").textContent=r.name;
-  const tag=document.getElementById("sCuisine");tag.textContent=r.cuisine;tag.style.cssText=`background:${c}20;color:${c};font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase`;
-  document.getElementById("sRating").textContent=r.rating;document.getElementById("sReviews").textContent=r.reviewCount+" reviews";
-  document.getElementById("sAddress").textContent=r.address;document.getElementById("sGemScore").textContent=gs;
+  const tag=document.getElementById("sCuisine");tag.textContent=r.cuisine;tag.style.cssText=`background:${c}20;color:${c}`;
+  document.getElementById("sRating").textContent=r.rating;
+  document.getElementById("sReviews").textContent=r.reviewCount+" reviews";
+  document.getElementById("sDistance").textContent=fmtDist(r.distance);
+  const openEl=document.getElementById("sOpen");
+  if(r.openNow===true){openEl.textContent="Open now";openEl.className="open-badge open";openEl.style.display="inline"}
+  else if(r.openNow===false){openEl.textContent="Closed";openEl.className="open-badge closed";openEl.style.display="inline"}
+  else{openEl.style.display="none"}
+  document.getElementById("sGemLine").textContent=gemLine(r);
+  document.getElementById("sAddress").textContent=r.address+(r.distance?" · "+fmtDist(r.distance):"");
+  document.getElementById("sGemScore").textContent=gs;
   document.getElementById("sGemRing").style.background=`conic-gradient(var(--accent) ${gs}%,var(--surface-2) ${gs}%)`;
-  const isSaved=savedIds.has(r.placeId);document.getElementById("sSave").className="surprise-action"+(isSaved?" saved":"");
-  document.getElementById("sHeartIcon").textContent=isSaved?"♥":"♡";document.getElementById("sSaveLabel").textContent=isSaved?"Saved":"Save";
+  const saved=savedIds.has(r.placeId);document.getElementById("sSave").className="surprise-action"+(saved?" saved":"");
+  document.getElementById("sHeartIcon").textContent=saved?"♥":"♡";document.getElementById("sSaveLabel").textContent=saved?"Saved":"Save";
 }
-function toggleSaveSurprise(){if(!currentSurprise)return;const id=currentSurprise.placeId;if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();updateSurpriseCard(currentSurprise)}
-function shareSurprise(){if(!currentSurprise)return;const r=currentSurprise,text=`💎 Hidden Gem: ${r.name}\n★ ${r.rating} · ${r.reviewCount} reviews · ${r.cuisine}\n📍 ${r.address}`;if(navigator.share)navigator.share({title:"Hidden Gem: "+r.name,text}).catch(()=>{});else navigator.clipboard.writeText(text).then(()=>toast("Copied")).catch(()=>{})}
+function toggleSaveSurprise(){if(!currentSurprise)return;const id=currentSurprise.placeId;if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();fillSurprise(currentSurprise)}
+function shareSurprise(){if(!currentSurprise)return;const r=currentSurprise,text=`💎 Hidden Gem: ${r.name}\n★ ${r.rating} · ${r.reviewCount} reviews\n📍 ${r.address}`;if(navigator.share)navigator.share({title:"Hidden Gem: "+r.name,text}).catch(()=>{});else navigator.clipboard.writeText(text).then(()=>toast("Copied")).catch(()=>{})}
 function navigateSurprise(){if(!currentSurprise)return;window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentSurprise.name+" "+currentSurprise.address)}`,"_blank")}
 
 /* LIST */
 function renderList(){
-  const filtered=getFilteredGems(),sorted=getSorted(filtered);
+  const filtered=getFiltered(),sorted=getSorted(filtered);
   document.getElementById("listCount").innerHTML=`<strong>${sorted.length}</strong> gem${sorted.length!==1?"s":""}`;
   const c=document.getElementById("cardList");
-  if(!sorted.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">🔍</span><p>No gems match.${activeMood?" Try another cuisine.":""}</p></div>`;return}
+  if(!sorted.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">🔍</span><p>No gems match your filters.</p></div>`;return}
   c.innerHTML=sorted.map((r,i)=>cardHTML(r,i)).join("");
 }
 function cardHTML(r,i){
-  const c=getColor(r.cuisine),gs=gemScore(r.rating,r.reviewCount),isSaved=savedIds.has(r.placeId);
-  return`<div class="card" style="animation:fadeUp .35s ease ${i*.04}s both"><div class="card-row"><div style="flex:1;min-width:0"><h3>${r.name}</h3><div class="card-tags"><span class="card-cuisine" style="background:${c}18;color:${c}">${r.cuisine}</span>${r.priceLevel?`<span class="card-price">${priceStr(r.priceLevel)}</span>`:""}</div><div class="card-stats"><span><span class="star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} reviews</span><span>·</span><span style="color:var(--accent)">${gs} gem</span></div><p class="card-address">${r.address}</p></div><div class="card-actions"><button class="card-action-btn ${isSaved?"saved":""}" onclick="event.stopPropagation();toggleSaveCard('${r.placeId}',this)">${isSaved?"♥":"♡"}</button><button class="card-action-btn" onclick="event.stopPropagation();navigateCard('${r.name.replace(/'/g,"\\'")}','${r.address.replace(/'/g,"\\'")}')">◎</button></div></div></div>`;
+  const c=getColor(r.cuisineGroup),gs=gemScore(r.rating,r.reviewCount),saved=savedIds.has(r.placeId);
+  const dist=fmtDist(r.distance);
+  const photoTag=r.photoRef?`<img class="card-photo" src="${photoUrl(r.photoRef,400)}" alt="${r.name}" loading="lazy"/>`:"";
+  const openTag=r.openNow===true?'<span class="open-badge open" style="font-size:10px;padding:1px 6px">Open</span>':r.openNow===false?'<span class="open-badge closed" style="font-size:10px;padding:1px 6px">Closed</span>':"";
+  return`<div class="card" style="animation:fadeUp .35s ease ${i*.03}s both">${photoTag}<div class="card-body"><div class="card-row"><div style="flex:1;min-width:0"><h3>${r.name}</h3><div class="card-tags"><span class="card-cuisine" style="background:${c}18;color:${c}">${r.cuisine}</span>${r.priceLevel?`<span class="card-price">${priceStr(r.priceLevel)}</span>`:""}${openTag}</div><div class="card-stats"><span><span class="star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} rev</span>${dist?`<span>·</span><span>${dist}</span>`:""}</div><p class="card-gem-line">${gemLine(r)}</p><p class="card-address">${r.address}</p></div><div class="card-actions"><button class="card-action-btn ${saved?"saved":""}" onclick="event.stopPropagation();toggleSaveCard('${r.placeId}')">${saved?"♥":"♡"}</button><button class="card-action-btn" onclick="event.stopPropagation();navCard('${r.name.replace(/'/g,"\\'")}','${r.address.replace(/'/g,"\\'")}')">◎</button></div></div></div></div>`;
 }
 function toggleSaveCard(id){if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();renderList();if(currentView==="saved")renderSaved()}
-function navigateCard(name,addr){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+" "+addr)}`,"_blank")}
+function navCard(n,a){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n+" "+a)}`,"_blank")}
 
 /* SAVED */
 function renderSaved(){
@@ -419,90 +420,68 @@ function renderSaved(){
 }
 
 /* API */
-function startDemo(){
-  mode="demo";allGems=DEMO;
-  document.getElementById("modal").style.display="none";document.getElementById("app").style.display="block";
-  document.getElementById("demoPill").style.display="inline-block";
-  initMap(36.1627,-86.7816);updateMapMarkers();
-}
-function startLive(){
-  mode="live";document.getElementById("modal").style.display="none";document.getElementById("app").style.display="block";
-  document.getElementById("searchArea").style.display="block";
-  setTimeout(()=>{try{handleSearch()}catch(e){console.error(e)}},300);
-}
-
-async function geocode(q){
-  const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);
-  const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;
-  throw new Error("Location not found.");
-}
+async function geocode(q){const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;throw new Error("Location not found.")}
 
 async function fetchPlaces(lat,lng){
-  // 5-mile radius grid: ~8km covered in 2.5km zones
   const offsets=[];const step=0.02;
-  for(let dlat=-0.045;dlat<=0.045;dlat+=step)for(let dlng=-0.045;dlng<=0.045;dlng+=step){if(Math.sqrt(dlat*dlat+dlng*dlng)<=0.05)offsets.push([dlat,dlng])}
+  for(let dl=-0.045;dl<=0.045;dl+=step)for(let dn=-0.045;dn<=0.045;dn+=step){if(Math.sqrt(dl*dl+dn*dn)<=0.05)offsets.push([dl,dn])}
   const types=["restaurant","cafe","bakery"];let all=[];let n=0;const total=offsets.length*types.length;
-  for(const[dlat,dlng]of offsets)for(const t of types){try{n++;if(n%9===0)toast(`Scanning... ${Math.round(n/total*100)}%`);const r=await fetch(`${WORKER_URL}/nearby?lat=${(lat+dlat).toFixed(6)}&lng=${(lng+dlng).toFixed(6)}&radius=2500&type=${t}`);const d=await r.json();if(d.results)all=all.concat(d.results)}catch(e){}}
+  for(const[dl,dn]of offsets)for(const t of types){try{n++;if(n%9===0)toast(`Scanning... ${Math.round(n/total*100)}%`);const r=await fetch(`${WORKER_URL}/nearby?lat=${(lat+dl).toFixed(6)}&lng=${(lng+dn).toFixed(6)}&radius=2500&type=${t}`);const d=await r.json();if(d.results)all=all.concat(d.results)}catch(e){}}
   const seen=new Set();return all.filter(r=>{if(seen.has(r.place_id))return false;seen.add(r.place_id);return true});
 }
 
-function processPlaces(places){
+function processPlaces(places,cLat,cLng){
   return places.filter(p=>p.rating>=4.0&&p.user_ratings_total>=50&&p.user_ratings_total<=200).map(p=>{
     const rawType=(p.types||[]).find(t=>!["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t))||"Restaurant";
     const allText=((p.name||"")+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
     let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
-    const rules=[
-      {group:"asian",kw:["chinese","thai","korean","asian","pho","wok","dim sum","dumpling","noodle","teriyaki","curry","szechuan","sichuan","hunan","boba"]},
-      {group:"japanese",kw:["japanese","sushi","ramen","udon","tempura","hibachi","izakaya","tonkatsu","yakitori","bento","poke"]},
-      {group:"italian",kw:["italian","pizza","pasta","trattoria","ristorante","gelato","panini"]},
-      {group:"mexican",kw:["mexican","taco","burrito","enchilada","taqueria","cantina","tortilla","latin","pupusa","empanada","cuban","peruvian","ceviche","colombian","brazilian","churrasco"]},
-      {group:"healthy",kw:["vegan","vegetarian","salad","health","acai","smoothie","juice bar","bowl","organic","mediterranean","hummus","falafel","pita","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian"]},
-      {group:"bakery",kw:["bakery","dessert","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","tea house","muffin","cinnamon"]},
-      {group:"bbq",kw:["bbq","barbecue","grill","smokehouse","brisket","pulled pork","ribs","wings","fried chicken","southern","soul food","cajun","creole"]},
-      {group:"seafood",kw:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar"]},
-    ];
-    for(const rule of rules){if(rule.kw.some(k=>allText.includes(k))){cuisineGroup=rule.group;break}}
+    const rules=[{g:"asian",k:CUISINE_KW.asian},{g:"japanese",k:CUISINE_KW.japanese},{g:"italian",k:CUISINE_KW.italian},{g:"mexican",k:CUISINE_KW.mexican},{g:"healthy",k:CUISINE_KW.healthy},{g:"bakery",k:CUISINE_KW.bakery},{g:"bbq",k:CUISINE_KW.bbq},{g:"seafood",k:CUISINE_KW.seafood}];
+    for(const rule of rules){if(rule.k.some(k=>allText.includes(k))){cuisineGroup=rule.g;break}}
     const lat=p.geometry?.location?.lat,lng=p.geometry?.location?.lng;
-    return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng};
+    const distance=distanceMi(cLat,cLng,lat,lng);
+    const photoRef=p.photos?.[0]?.photo_reference||null;
+    const openNow=p.opening_hours?.open_now??null;
+    return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance,photoRef,openNow};
   });
 }
 
 async function handleSearch(){
   const q=document.getElementById("zipInput").value.trim();if(!q)return;
-  if(WORKER_URL.includes("YOURNAME")){showError("Configure your API endpoint first.");return}
   const btn=document.getElementById("searchBtn");btn.textContent="...";document.getElementById("loadingBar").style.display="block";
   try{
     const{lat,lng}=await geocode(q);
     initMap(lat,lng);
     const places=await fetchPlaces(lat,lng);
-    allGems=processPlaces(places);
+    allGems=processPlaces(places,lat,lng);
     updateMapMarkers();
-    if(!allGems.length&&places.length)toast(`Found ${places.length} restaurants, but none had 50-200 reviews with 4★+`);
+    if(!allGems.length&&places.length)toast(`${places.length} restaurants found, but none had 50-200 reviews with 4★+`);
     else toast(`Found ${allGems.length} hidden gems`);
     renderCurrentView();
   }catch(e){
-    const msg=e.message||"Search failed.";
-    if(msg.includes("Failed to fetch")||msg.includes("NetworkError"))showError("Can't reach API. Check your worker URL.");
-    else showError(msg);
+    if((e.message||"").includes("Failed to fetch"))showError("Can't reach API. Check settings.");
+    else showError(e.message||"Search failed.");
   }
   btn.textContent="Find";document.getElementById("loadingBar").style.display="none";
 }
 
 function handleGeo(){
   if(!navigator.geolocation){showError("Geolocation not supported.");return}
-  if(WORKER_URL.includes("YOURNAME")){showError("Configure your API endpoint first.");return}
   document.getElementById("loadingBar").style.display="block";
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
       const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      document.getElementById("zipInput").value="📍 Current location";
       initMap(lat,lng);
       const places=await fetchPlaces(lat,lng);
-      allGems=processPlaces(places);updateMapMarkers();renderCurrentView();
+      allGems=processPlaces(places,lat,lng);updateMapMarkers();renderCurrentView();
       toast(`Found ${allGems.length} gems nearby`);
     }catch(e){showError(e.message)}
     document.getElementById("loadingBar").style.display="none";
   },()=>{showError("Location denied.");document.getElementById("loadingBar").style.display="none"});
 }
+
+// Auto-search on load
+setTimeout(()=>{handleSearch()},200);
 </script>
 </body>
 </html>
