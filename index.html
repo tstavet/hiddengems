@@ -856,50 +856,78 @@ async function geocode(q) {
 }
 
 async function fetchPlaces(lat, lng) {
-  // Search a grid of smaller areas to find hidden gems
-  // Google's nearby search biases toward popular places in large radii
-  // Smaller radii surface lesser-known spots
-  const offsets = [
-    [0, 0],
-    [0.015, 0], [-0.015, 0], [0, 0.015], [0, -0.015],
-    [0.015, 0.015], [-0.015, 0.015], [0.015, -0.015], [-0.015, -0.015],
-    [0.03, 0], [-0.03, 0], [0, 0.03], [0, -0.03],
-  ];
+  // 10 mile radius = ~16km. Search a grid of 3km zones to surface hidden gems.
+  // Google biases large-radius results toward popular spots, so smaller zones find the underdogs.
+  const gridOffsets = [];
+  const step = 0.025; // ~2.7km per step
+  for (let dlat = -0.075; dlat <= 0.075; dlat += step) {
+    for (let dlng = -0.075; dlng <= 0.075; dlng += step) {
+      // Only include points within roughly 10 miles (circular)
+      const dist = Math.sqrt(dlat*dlat + dlng*dlng);
+      if (dist <= 0.085) gridOffsets.push([dlat, dlng]);
+    }
+  }
+
   const types = ["restaurant","cafe","bakery"];
   let all = [];
   let searched = 0;
-  const total = offsets.length * types.length;
+  const total = gridOffsets.length * types.length;
 
-  for (const [dlat, dlng] of offsets) {
+  for (const [dlat, dlng] of gridOffsets) {
     for (const t of types) {
       try {
         searched++;
-        if (searched % 6 === 0) toast(`Scanning area ${Math.round(searched/total*100)}%...`);
-        const r = await fetch(`${WORKER_URL}/nearby?lat=${(lat+dlat).toFixed(6)}&lng=${(lng+dlng).toFixed(6)}&radius=2000&type=${t}`);
+        if (searched % 12 === 0) {
+          const pct = Math.round(searched/total*100);
+          toast(`Scanning Nashville... ${pct}%`);
+        }
+        const r = await fetch(`${WORKER_URL}/nearby?lat=${(lat+dlat).toFixed(6)}&lng=${(lng+dlng).toFixed(6)}&radius=3000&type=${t}`);
         const d = await r.json();
         if (d.results) all = all.concat(d.results);
-      } catch(e) { console.warn("Fetch failed:", t, e); }
+      } catch(e) { console.warn("Fetch failed:", e); }
     }
   }
-  // Deduplicate by place_id
   const seen = new Set();
-  return all.filter(r => { if (seen.has(r.place_id)) return false; seen.add(r.place_id); return true; });
+  const deduped = all.filter(r => { if (seen.has(r.place_id)) return false; seen.add(r.place_id); return true; });
+  console.log(`Scanned ${gridOffsets.length} zones, found ${all.length} total results, ${deduped.length} unique places`);
+  return deduped;
 }
 
 function processPlaces(places) {
   return places
     .filter(p => p.rating >= 4.0 && p.user_ratings_total < 200 && p.user_ratings_total > 0)
     .map(p => {
-      const rawType = (p.types||[]).find(t => !["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery"].includes(t)) || "Restaurant";
+      const rawType = (p.types||[]).find(t => !["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t)) || "Restaurant";
+      const nameLower = (p.name || "").toLowerCase();
+      const typesStr = (p.types || []).join(" ").toLowerCase();
+      const allText = nameLower + " " + typesStr + " " + rawType.toLowerCase();
+
+      // Detect cuisine from name + types
+      let cuisine = rawType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
       let cuisineGroup = "";
-      Object.entries(CUISINE_MAP).forEach(([group, keywords]) => {
-        if (keywords.some(k => rawType.toLowerCase().includes(k) || p.name.toLowerCase().includes(k)))
-          cuisineGroup = group;
-      });
+
+      const cuisineRules = [
+        { group: "asian", label: null, keywords: ["chinese","thai","korean","asian","pho","wok","dim sum","dumpling","noodle","teriyaki","curry","pad","szechuan","sichuan","hunan","cantonese","mongolian","taiwan","boba"] },
+        { group: "japanese", label: null, keywords: ["japanese","sushi","ramen","udon","soba","tempura","hibachi","izakaya","sake","miso","tonkatsu","yakitori","bento","poke"] },
+        { group: "italian", label: null, keywords: ["italian","pizza","pasta","trattoria","ristorante","gelato","risotto","calzone","panini","cappuccino","espresso bar"] },
+        { group: "mexican", label: null, keywords: ["mexican","taco","burrito","burrit","enchilada","tamale","quesadilla","salsa","guac","taqueria","cantina","tortilla","pozole","elote","churro","latin","hispanic","pupusa","empanada","arepa","cuban","peruvian","ceviche","colombian","brazilian","churrasco"] },
+        { group: "healthy", label: null, keywords: ["vegan","vegetarian","salad","health","acai","smoothie","juice bar","bowl","plant","organic","raw","green","quinoa","mediterranean","hummus","falafel","pita","greek","lebanese","turkish","shawarma","kebab","gyro"] },
+        { group: "bakery", label: null, keywords: ["bakery","dessert","pastry","cafe","pie","cake","donut","doughnut","cupcake","cookie","bread","croissant","macaron","waffle","pancake","brunch","coffee","tea house","patisserie","boulangerie","scone","muffin","cinnamon"] },
+        { group: "bbq", label: null, keywords: ["bbq","barbecue","barbeque","grill","smokehouse","smoked","brisket","pulled pork","ribs","wings","fried chicken","southern","soul food","comfort","cajun","creole","jambalaya","gumbo"] },
+        { group: "seafood", label: null, keywords: ["seafood","fish","oyster","shrimp","crab","lobster","clam","mussel","sashimi","catch","pier","harbor","dock","raw bar","crawfish"] },
+      ];
+
+      for (const rule of cuisineRules) {
+        if (rule.keywords.some(k => allText.includes(k))) {
+          cuisineGroup = rule.group;
+          if (rule.label) cuisine = rule.label;
+          break;
+        }
+      }
+
       return {
         name: p.name, rating: p.rating, reviewCount: p.user_ratings_total,
-        cuisine: rawType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        priceLevel: p.price_level || 0, address: p.vicinity || "",
+        cuisine, priceLevel: p.price_level || 0, address: p.vicinity || "",
         placeId: p.place_id, cuisineGroup
       };
     });
