@@ -856,22 +856,39 @@ async function geocode(q) {
 }
 
 async function fetchPlaces(lat, lng) {
+  // Search a grid of smaller areas to find hidden gems
+  // Google's nearby search biases toward popular places in large radii
+  // Smaller radii surface lesser-known spots
+  const offsets = [
+    [0, 0],
+    [0.015, 0], [-0.015, 0], [0, 0.015], [0, -0.015],
+    [0.015, 0.015], [-0.015, 0.015], [0.015, -0.015], [-0.015, -0.015],
+    [0.03, 0], [-0.03, 0], [0, 0.03], [0, -0.03],
+  ];
   const types = ["restaurant","cafe","bakery"];
   let all = [];
-  for (const t of types) {
-    try {
-      const r = await fetch(`${WORKER_URL}/nearby?lat=${lat}&lng=${lng}&radius=8000&type=${t}`);
-      const d = await r.json();
-      if (d.results) all = all.concat(d.results);
-    } catch(e) { console.warn("Fetch failed for type:", t, e); }
+  let searched = 0;
+  const total = offsets.length * types.length;
+
+  for (const [dlat, dlng] of offsets) {
+    for (const t of types) {
+      try {
+        searched++;
+        if (searched % 6 === 0) toast(`Scanning area ${Math.round(searched/total*100)}%...`);
+        const r = await fetch(`${WORKER_URL}/nearby?lat=${(lat+dlat).toFixed(6)}&lng=${(lng+dlng).toFixed(6)}&radius=2000&type=${t}`);
+        const d = await r.json();
+        if (d.results) all = all.concat(d.results);
+      } catch(e) { console.warn("Fetch failed:", t, e); }
+    }
   }
+  // Deduplicate by place_id
   const seen = new Set();
   return all.filter(r => { if (seen.has(r.place_id)) return false; seen.add(r.place_id); return true; });
 }
 
 function processPlaces(places) {
   return places
-    .filter(p => p.rating >= 4.0 && p.user_ratings_total < 50 && p.user_ratings_total > 0)
+    .filter(p => p.rating >= 4.0 && p.user_ratings_total < 200 && p.user_ratings_total > 0)
     .map(p => {
       const rawType = (p.types||[]).find(t => !["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery"].includes(t)) || "Restaurant";
       let cuisineGroup = "";
