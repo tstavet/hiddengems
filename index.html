@@ -538,6 +538,13 @@
 <footer>Hidden Gems V2 — Find restaurants before the crowds</footer>
 
 <script>
+/* Global error handler for debugging */
+window.onerror = function(msg, url, line) {
+  console.error("JS Error:", msg, "at line", line);
+  var el = document.getElementById("errorMsg");
+  if (el) { el.textContent = "Error: " + msg; el.style.display = "block"; }
+};
+
 /* ═══ DATA ═══ */
 const DEMO = [
   { name:"Mama Lua's Kitchen", rating:4.6, reviewCount:23, cuisine:"Brazilian", priceLevel:2, address:"412 Gallatin Ave, Nashville, TN", placeId:"demo1", cuisineGroup:"latin" },
@@ -835,8 +842,10 @@ function startLive() {
   document.getElementById("modal").style.display = "none";
   document.getElementById("app").style.display = "block";
   document.getElementById("searchArea").style.display = "block";
-  // Auto-search Nashville on launch
-  handleSearch();
+  // Give the DOM a moment to render, then auto-search
+  setTimeout(function() {
+    try { handleSearch(); } catch(e) { console.error("Auto-search failed:", e); }
+  }, 300);
 }
 
 async function geocode(q) {
