@@ -2,141 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Hidden Gems — Discover Great Restaurants</title>
-  <meta name="description" content="Find 4-star restaurants with real reviews near you. Great food, less hype." />
-  <meta name="theme-color" content="#0c0b10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>Hidden Gems</title>
+  <meta name="description" content="Discover restaurants you didn't know existed." />
+  <meta name="theme-color" content="#0a0a0f" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    :root{--bg:#0c0b10;--surface:#16151d;--surface-2:#1e1d27;--border:#2a2935;--text:#eeedf5;--text-dim:#8a889a;--text-muted:#5c5a6b;--accent:#e8c547;--accent-dim:#e8c54720;--accent-glow:#e8c54712;--danger:#e85a5a;--green:#34d399;--ultra:#c084fc;--fire:#fb923c;--radius:20px;--radius-sm:12px;--font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}::selection{background:var(--accent);color:var(--bg)}html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-    input::placeholder{color:var(--text-muted)}button{font-family:var(--font)}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    @keyframes cardFlip{0%{transform:rotateY(0) scale(1)}40%{transform:rotateY(90deg) scale(.95)}60%{transform:rotateY(90deg) scale(.95)}100%{transform:rotateY(0) scale(1)}}
-    @keyframes heartPop{0%{transform:scale(1)}30%{transform:scale(1.4)}60%{transform:scale(.9)}100%{transform:scale(1)}}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+:root{--bg:#0a0a0f;--surface:#141419;--surface-2:#1c1c24;--border:#27272f;--text:#f0eff7;--text-dim:#9290a0;--text-muted:#5e5c6e;--gold:#e2b93b;--gold-dim:#e2b93b20;--gold-soft:#e2b93b0d;--danger:#ef6060;--green:#3dd6a0;--ultra:#b47aff;--fire:#f5923c;--serif:'Instrument Serif',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;--r:20px;--rs:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--gold);color:var(--bg)}
+input::placeholder{color:var(--text-muted)}
+button{font-family:var(--sans);cursor:pointer}
 
-    .app{max-width:600px;margin:0 auto;padding:0 20px}
-    .header{padding:32px 0 6px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s ease}
-    .logo{display:flex;align-items:center;gap:8px}
-    .logo-gem{font-size:22px}.logo-text{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-family:var(--mono)}
-    .settings-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-    .settings-btn:hover{border-color:var(--accent);color:var(--accent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes heartPop{0%{transform:scale(1)}30%{transform:scale(1.35)}60%{transform:scale(.92)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slideLeft{from{opacity:1;transform:translateX(0) rotate(0)}to{opacity:0;transform:translateX(-120%) rotate(-8deg)}}
+@keyframes slideRight{from{opacity:1;transform:translateX(0) rotate(0)}to{opacity:0;transform:translateX(120%) rotate(8deg)}}
+@keyframes cardEnter{from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
-    .search-row{display:flex;gap:8px;margin-bottom:14px;animation:fadeUp .5s ease .05s both}
-    .search-input{flex:1;padding:13px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;outline:none;font-family:var(--font);transition:border-color .25s}
-    .search-input:focus{border-color:var(--accent)}
-    .search-btn{padding:13px 18px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}.search-btn:hover{filter:brightness(1.1)}
-    .geo-btn{padding:13px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center}.geo-btn:hover{border-color:var(--accent);color:var(--accent)}
-    .scan-status{font-size:12px;font-family:var(--mono);color:var(--text-muted);text-align:center;padding:4px 0 10px;animation:pulse 1.5s ease infinite}
+.app{max-width:520px;margin:0 auto;padding:0 16px}
 
-    .map-wrap{margin-bottom:14px;animation:fadeUp .5s ease .1s both}
-    .map-container{width:100%;height:260px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);position:relative}
-    .map-container.expanded{height:460px}
-    #map{width:100%;height:100%;z-index:1}
-    .map-toggle{position:absolute;bottom:10px;right:10px;z-index:500;padding:6px 12px;border-radius:8px;border:none;background:var(--surface);color:var(--text-dim);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:all .2s}.map-toggle:hover{color:var(--accent)}
-    .map-badge{position:absolute;top:10px;left:10px;z-index:500;padding:5px 12px;border-radius:8px;background:var(--surface);color:var(--accent);font-size:11px;font-weight:600;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.4)}
-    .leaflet-container{background:var(--bg)}
-    .leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(0,0,0,.4)!important;border:1px solid var(--border)!important}
-    .leaflet-popup-tip{background:var(--surface)!important}
-    .leaflet-popup-content{margin:10px 14px!important;font-family:var(--font)!important;font-size:13px!important}
-    .popup-name{font-weight:700;font-size:14px;margin-bottom:3px}.popup-meta{color:var(--text-dim);font-family:var(--mono);font-size:11px}.popup-star{color:var(--accent)}
-    .leaflet-popup-close-button{color:var(--text-muted)!important}
+/* ═══ HEADER ═══ */
+.hdr{padding:28px 0 4px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s ease}
+.logo{display:flex;align-items:center;gap:6px}
+.logo-icon{font-size:20px}
+.logo-name{font-family:var(--serif);font-size:20px;color:var(--text);font-style:italic;letter-spacing:-.02em}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.hdr-btn:hover{border-color:var(--gold);color:var(--gold)}
 
-    .filters-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;animation:fadeUp .5s ease .15s both;align-items:center}
-    .filter-pill{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s;white-space:nowrap}
-    .filter-pill:hover{border-color:var(--text-muted)}
-    .filter-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
-    .filter-divider{width:1px;height:20px;background:var(--border);margin:0 4px}
+/* ═══ SEARCH ═══ */
+.search{display:flex;gap:6px;margin-bottom:12px;animation:fadeUp .5s ease .04s both}
+.search-in{flex:1;padding:12px 14px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.search-in:focus{border-color:var(--gold)}
+.search-go{padding:12px 16px;border-radius:var(--rs);border:none;background:var(--gold);color:var(--bg);font-size:13px;font-weight:700;transition:filter .2s}.search-go:hover{filter:brightness(1.1)}
+.geo-btn{padding:12px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:14px;transition:all .2s;display:flex;align-items:center}.geo-btn:hover{border-color:var(--gold);color:var(--gold)}
 
-    .tabs{display:flex;gap:4px;justify-content:center;margin:14px 0 16px;animation:fadeUp .5s ease .1s both}
-    .tab{padding:9px 20px;border-radius:40px;border:none;background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s}
-    .tab:hover{color:var(--text-dim)}.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,.2)}
+/* ═══ STATUS ═══ */
+.scan-bar{font-size:11px;font-family:var(--mono);color:var(--text-muted);text-align:center;padding:2px 0 8px;animation:pulse 1.5s ease infinite}
+.error-bar{padding:10px 14px;border-radius:var(--rs);background:#ef606012;border:1px solid #ef606025;color:var(--danger);font-size:12px;text-align:center;margin-bottom:10px;animation:fadeIn .3s}
+.loading-bar{height:2px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-bottom:12px}.loading-inner{height:100%;width:40%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold),transparent);animation:shimmer 1.2s ease infinite;background-size:200% 100%}
 
-    .surprise-section{animation:fadeUp .5s ease;padding-bottom:32px}
-    .surprise-card{background:var(--surface);border-radius:20px;overflow:hidden;border:1px solid var(--border);position:relative;min-height:260px;display:flex;flex-direction:column}
-    .surprise-card.flipping{animation:cardFlip .6s ease}
-    .surprise-photo{width:100%;height:180px;object-fit:cover;display:block;background:var(--surface-2)}
-    .surprise-body{padding:24px 24px 16px;flex:1;display:flex;flex-direction:column;position:relative}
-    .surprise-gem-badge{position:absolute;top:-28px;right:20px;z-index:2}
-    .gem-ring{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
-    .gem-ring-inner{width:38px;height:38px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);font-family:var(--mono)}
-    .surprise-name{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .surprise-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-    .tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:16px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase}
-    .badge-ultra{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#c084fc20;color:var(--ultra);border:1px solid #c084fc40}
-    .badge-fire{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#fb923c20;color:var(--fire);border:1px solid #fb923c40}
-    .badge-top{font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;font-family:var(--mono);background:#e8c54720;color:var(--accent);border:1px solid #e8c54740}
-    .surprise-stats{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13px;font-family:var(--mono);margin-bottom:6px}
-    .star{color:var(--accent)}
-    .open-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
-    .open-badge.open{background:#34d39920;color:var(--green)}.open-badge.closed{background:#e85a5a15;color:var(--danger)}
-    .surprise-gem-line{color:var(--accent);font-size:13px;font-style:italic;margin-bottom:8px;opacity:.9}
-    .surprise-address{color:var(--text-muted);font-size:13px;margin-top:auto}
-    .surprise-actions{display:flex;border-top:1px solid var(--border)}
-    .surprise-action{flex:1;padding:14px;border:none;background:transparent;color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
-    .surprise-action:hover{background:var(--surface-2);color:var(--text)}.surprise-action+.surprise-action{border-left:1px solid var(--border)}
-    .surprise-action.saved{color:var(--danger)}.surprise-action.saved .heart-icon{animation:heartPop .35s ease}
-    .surprise-big-btn{width:100%;padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px}
-    .surprise-big-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 4px 20px var(--accent-glow);transform:translateY(-2px)}
-    .surprise-big-btn:hover .dice{transform:rotate(20deg)}.surprise-big-btn .dice{display:inline-block;transition:transform .3s}
-    .surprise-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}.surprise-empty-icon{font-size:44px;display:block;margin-bottom:14px;opacity:.5}
+/* ═══ FILTERS ═══ */
+.filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;animation:fadeUp .5s ease .08s both;align-items:center}
+.pill{padding:6px 12px;border-radius:18px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:600;font-family:var(--mono);transition:all .2s;white-space:nowrap}
+.pill:hover{border-color:var(--text-muted)}
+.pill.on{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.fdiv{width:1px;height:18px;background:var(--border);margin:0 3px}
 
-    .list-section,.saved-section{animation:fadeUp .4s ease;padding-bottom:32px}
-    .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-    .list-count{color:var(--text-dim);font-size:13px}.list-count strong{color:var(--text)}
-    .sort-pills{display:flex;gap:5px}
-    .sort-pill{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .2s}
-    .sort-pill:hover{border-color:var(--text-muted)}.sort-pill.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
-    .card-list{display:flex;flex-direction:column;gap:10px}
-    .card{background:var(--surface);border-radius:16px;border:1px solid var(--border);transition:all .3s;cursor:pointer;overflow:hidden;position:relative}
-    .card:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
-    .card.card-ultra{border-color:#c084fc30}.card.card-fire{border-color:#fb923c30}
-    .card-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2)}
-    .card-body{padding:16px 20px}
-    .card-row{display:flex;justify-content:space-between;align-items:flex-start}
-    .card h3{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-    .card-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-    .card-cuisine{font-size:9px;font-weight:600;padding:2px 8px;border-radius:12px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
-    .card-price{color:var(--text-muted);font-size:11px;font-family:var(--mono)}
-    .card-stats{display:flex;align-items:center;gap:10px;font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-bottom:4px}
-    .card-gem-line{color:var(--accent);font-size:12px;font-style:italic;margin-bottom:6px;opacity:.85}
-    .card-address{color:var(--text-muted);font-size:12px}
-    .card-actions{display:flex;gap:6px;align-items:flex-start;margin-left:10px;flex-shrink:0}
-    .card-action-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;color:var(--text-muted)}
-    .card-action-btn:hover{border-color:var(--text-muted)}.card-action-btn.saved{border-color:var(--danger);color:var(--danger);background:#e85a5a12}
-    .saved-empty{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px}.saved-empty-icon{font-size:36px;display:block;margin-bottom:10px;opacity:.5}
+/* ═══ TABS ═══ */
+.tabs{display:flex;gap:3px;justify-content:center;margin:10px 0 14px;animation:fadeUp .5s ease .06s both}
+.tab{padding:8px 18px;border-radius:30px;border:none;background:transparent;color:var(--text-muted);font-size:12px;font-weight:600;transition:all .25s}
+.tab:hover{color:var(--text-dim)}
+.tab.on{background:var(--surface);color:var(--text);box-shadow:0 2px 10px rgba(0,0,0,.2)}
 
-    .error-bar{padding:12px 16px;border-radius:var(--radius-sm);background:#e85a5a12;border:1px solid #e85a5a25;color:var(--danger);font-size:13px;text-align:center;margin-bottom:14px;animation:fadeIn .3s ease}
-    .loading-bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-bottom:16px}.loading-bar-inner{height:100%;width:40%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent),transparent);animation:shimmer 1.2s ease infinite;background-size:200% 100%}
-    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-2);color:var(--text);padding:12px 22px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:13px;font-weight:500;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;animation:fadeIn .3s ease}
-    .modal{background:var(--surface);border-radius:var(--radius);padding:36px 32px;max-width:400px;width:100%;border:1px solid var(--border);box-shadow:0 40px 100px rgba(0,0,0,.6)}
-    .modal h2{font-size:20px;font-weight:700;margin-bottom:8px}.modal p{color:var(--text-dim);font-size:14px;line-height:1.6;margin-bottom:20px}
-    .modal input{width:100%;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;margin-bottom:16px}.modal input:focus{border-color:var(--accent)}
-    .btn{padding:14px 20px;border-radius:var(--radius-sm);border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s}
-    .btn-accent{background:var(--accent);color:var(--bg)}.btn-accent:hover{filter:brightness(1.1)}
-    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--accent)}.btn-ghost:hover{background:var(--accent-glow)}
-    footer{text-align:center;padding:24px 20px 36px;color:var(--text-muted);font-size:11px}
-    @media(max-width:480px){.surprise-name{font-size:20px}.surprise-body{padding:20px 18px 12px}.map-container{height:200px}.map-container.expanded{height:360px}.card-photo{height:110px}.surprise-photo{height:140px}}
+/* ═══ DISCOVER (swipe cards) ═══ */
+.discover{padding-bottom:32px;min-height:400px}
+.card-stack{position:relative;width:100%;min-height:440px;perspective:800px}
+.swipe-card{position:absolute;top:0;left:0;width:100%;border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.35);transition:box-shadow .3s;touch-action:pan-y;will-change:transform}
+.swipe-card.entering{animation:cardEnter .4s cubic-bezier(.16,1,.3,1) both}
+.swipe-card.exit-left{animation:slideLeft .35s ease both;pointer-events:none}
+.swipe-card.exit-right{animation:slideRight .35s ease both;pointer-events:none}
+.swipe-card.dragging{transition:none !important}
+
+/* Card photo hero */
+.sc-photo-wrap{position:relative;width:100%;height:260px;overflow:hidden;background:var(--surface-2)}
+.sc-photo{width:100%;height:100%;object-fit:cover;display:block}
+.sc-photo-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;opacity:.15}
+.sc-gradient{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
+.sc-badge-wrap{position:absolute;top:14px;left:14px;display:flex;gap:6px}
+.sc-gem-pill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.sc-gem-ultra{background:#b47aff30;color:#d4b0ff;border:1px solid #b47aff40}
+.sc-gem-fire{background:#f5923c30;color:#ffc08a;border:1px solid #f5923c40}
+.sc-gem-top{background:#e2b93b28;color:var(--gold);border:1px solid #e2b93b40}
+.sc-score{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold);font-family:var(--mono);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:2px solid #e2b93b30}
+
+/* Card body - story first */
+.sc-body{padding:20px 22px 16px}
+.sc-name{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px;font-style:italic}
+.sc-story{color:var(--gold);font-size:15px;line-height:1.5;margin-bottom:14px;font-family:var(--serif);font-style:italic;opacity:.9}
+.sc-details{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.sc-tag{font-size:10px;font-weight:600;padding:3px 10px;border-radius:14px;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase}
+.sc-open{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px}
+.sc-open.open{background:#3dd6a020;color:var(--green)}
+.sc-open.closed{background:#ef606015;color:var(--danger)}
+.sc-stats{display:flex;align-items:center;gap:8px;font-size:12px;font-family:var(--mono);color:var(--text-dim);margin-bottom:8px}
+.sc-star{color:var(--gold)}
+.sc-addr{color:var(--text-muted);font-size:12px}
+
+/* Swipe hint + actions */
+.swipe-hint{text-align:center;padding:6px 0 2px;font-size:11px;color:var(--text-muted);font-family:var(--mono);opacity:.6}
+.sc-actions{display:flex;justify-content:center;gap:12px;padding:16px 0 6px}
+.sc-act{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .25s;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.sc-act:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.sc-act.skip:hover{border-color:var(--text-muted);background:var(--surface-2)}
+.sc-act.save:hover{border-color:var(--danger);background:#ef606012}
+.sc-act.save.saved{border-color:var(--danger);color:var(--danger);background:#ef606015}
+.sc-act.nav:hover{border-color:var(--gold);background:var(--gold-dim)}
+.sc-act.share:hover{border-color:var(--text-dim);background:var(--surface-2)}
+.discover-empty{text-align:center;padding:80px 20px;color:var(--text-muted)}.discover-empty span{font-size:48px;display:block;margin-bottom:16px;opacity:.4}
+
+/* ═══ LIST ═══ */
+.list-sec,.saved-sec{animation:fadeUp .4s ease;padding-bottom:32px}
+.list-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.list-ct{color:var(--text-dim);font-size:12px}.list-ct strong{color:var(--text)}
+.sort-pills{display:flex;gap:4px}
+.spill{padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:10px;font-weight:600;font-family:var(--mono);transition:all .2s}
+.spill:hover{border-color:var(--text-muted)}.spill.on{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.clist{display:flex;flex-direction:column;gap:10px}
+
+/* List card: photo-first, story-first */
+.lc{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;transition:all .3s;cursor:pointer;position:relative}
+.lc:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.lc.lc-ultra{border-color:#b47aff25}.lc.lc-fire{border-color:#f5923c25}
+.lc-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2)}
+.lc-body{padding:14px 18px}
+.lc-top{display:flex;justify-content:space-between;align-items:flex-start}
+.lc-info{flex:1;min-width:0}
+.lc-name{font-family:var(--serif);font-size:19px;font-style:italic;letter-spacing:-.01em;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lc-story{color:var(--gold);font-size:12px;font-style:italic;margin-bottom:8px;opacity:.85;font-family:var(--serif);line-height:1.4}
+.lc-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.lc-cuisine{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.lc-price{color:var(--text-muted);font-size:10px;font-family:var(--mono)}
+.lc-stats{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-dim);margin-bottom:4px}
+.lc-addr{color:var(--text-muted);font-size:11px}
+.lc-acts{display:flex;gap:5px;margin-left:8px;flex-shrink:0}
+.lc-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;color:var(--text-muted)}
+.lc-btn:hover{border-color:var(--text-muted)}.lc-btn.saved{border-color:var(--danger);color:var(--danger);background:#ef606010}
+.badge-s{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;font-family:var(--mono)}
+.badge-s.bu{background:#b47aff18;color:var(--ultra);border:1px solid #b47aff30}
+.badge-s.bf{background:#f5923c18;color:var(--fire);border:1px solid #f5923c30}
+.badge-s.bt{background:#e2b93b18;color:var(--gold);border:1px solid #e2b93b30}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:13px}
+.empty-state span{font-size:32px;display:block;margin-bottom:8px;opacity:.4}
+
+/* ═══ MAP (collapsible) ═══ */
+.map-wrap{margin-bottom:10px;animation:fadeUp .5s ease .1s both}
+.map-shell{width:100%;height:180px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);position:relative;transition:height .3s ease}
+.map-shell.big{height:400px}
+#map{width:100%;height:100%;z-index:1}
+.map-badge{position:absolute;top:8px;left:8px;z-index:500;padding:4px 10px;border-radius:7px;background:var(--surface);color:var(--gold);font-size:10px;font-weight:600;font-family:var(--mono);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.map-tog{position:absolute;bottom:8px;right:8px;z-index:500;padding:4px 10px;border-radius:7px;border:none;background:var(--surface);color:var(--text-muted);font-size:10px;font-weight:600;font-family:var(--mono);box-shadow:0 2px 6px rgba(0,0,0,.4);transition:color .2s;cursor:pointer}.map-tog:hover{color:var(--gold)}
+.leaflet-container{background:var(--bg)}
+.leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-radius:12px!important;box-shadow:0 8px 20px rgba(0,0,0,.4)!important;border:1px solid var(--border)!important}
+.leaflet-popup-tip{background:var(--surface)!important}
+.leaflet-popup-content{margin:8px 12px!important;font-family:var(--sans)!important;font-size:12px!important}
+.leaflet-popup-close-button{color:var(--text-muted)!important}
+
+/* ═══ MISC ═══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-2);color:var(--text);padding:10px 20px;border-radius:var(--rs);border:1px solid var(--border);font-size:12px;font-weight:500;z-index:999;box-shadow:0 12px 36px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;opacity:0;pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:fadeIn .3s}
+.modal{background:var(--surface);border-radius:var(--r);padding:30px 26px;max-width:380px;width:100%;border:1px solid var(--border)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:6px}.modal p{color:var(--text-dim);font-size:13px;line-height:1.5;margin-bottom:16px}
+.modal input{width:100%;padding:12px 14px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-family:var(--mono);outline:none;margin-bottom:14px}
+.modal input:focus{border-color:var(--gold)}
+.mbtn{padding:12px 18px;border-radius:var(--rs);border:none;font-size:13px;font-weight:600;transition:all .2s}
+.mbtn-go{background:var(--gold);color:var(--bg)}.mbtn-go:hover{filter:brightness(1.1)}
+.mbtn-x{background:transparent;border:1px solid var(--border);color:var(--gold)}.mbtn-x:hover{background:var(--gold-soft)}
+footer{text-align:center;padding:20px 16px 32px;color:var(--text-muted);font-size:10px;font-family:var(--mono)}
+
+@media(max-width:480px){.sc-photo-wrap{height:220px}.sc-name{font-size:24px}.sc-body{padding:16px 18px 12px}.map-shell{height:150px}.map-shell.big{height:320px}.sc-actions{gap:10px}.sc-act{width:46px;height:46px;font-size:18px}}
   </style>
 </head>
 <body>
 
-<div class="modal-overlay" id="settingsModal" style="display:none">
+<div class="modal-bg" id="settingsModal" style="display:none">
   <div class="modal">
     <h2>⚙️ Settings</h2>
-    <p>Cloudflare Worker URL for API requests.</p>
+    <p>Cloudflare Worker URL</p>
     <input type="text" id="workerUrlInput" placeholder="https://hidden-gems-api.tstavet.workers.dev" />
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-accent" onclick="saveWorkerUrl()" style="flex:1">Save</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('settingsModal').style.display='none'" style="flex:1">Cancel</button>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn mbtn-go" onclick="saveWorkerUrl()" style="flex:1">Save</button>
+      <button class="mbtn mbtn-x" onclick="document.getElementById('settingsModal').style.display='none'" style="flex:1">Cancel</button>
     </div>
   </div>
 </div>
@@ -144,427 +190,354 @@
 <div class="toast" id="toast"></div>
 
 <div class="app">
-  <div class="header">
-    <div class="logo"><span class="logo-gem">💎</span><span class="logo-text">Hidden Gems</span></div>
-    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
-  </div>
-  <div class="search-row">
-    <input class="search-input" id="zipInput" placeholder="Search any city, zip, or address..." />
-    <button class="search-btn" id="searchBtn" onclick="handleSearch()">Find</button>
-    <button class="geo-btn" onclick="handleGeo()" title="Use my location">📍</button>
-  </div>
-
-  <div class="map-wrap" id="mapWrap" style="display:none">
-    <div class="map-container" id="mapContainer">
-      <div class="map-badge" id="mapBadge">0 gems</div>
-      <div id="map"></div>
-      <button class="map-toggle" id="mapToggle" onclick="toggleMapSize()">Expand</button>
+  <div class="hdr">
+    <div class="logo"><span class="logo-icon">💎</span><span class="logo-name">Hidden Gems</span></div>
+    <div class="hdr-btns">
+      <button class="hdr-btn" onclick="toggleMapPanel()" title="Map" id="mapBtn">🗺</button>
+      <button class="hdr-btn" onclick="openSettings()" title="Settings">⚙</button>
     </div>
   </div>
 
-  <div id="scanStatus" class="scan-status" style="display:none"></div>
-
-  <div class="filters-row" id="filtersRow">
-    <button class="filter-pill" data-cuisine="asian" onclick="toggleCuisine(this)">🍜 Asian</button>
-    <button class="filter-pill" data-cuisine="italian" onclick="toggleCuisine(this)">🍕 Italian</button>
-    <button class="filter-pill" data-cuisine="mexican" onclick="toggleCuisine(this)">🌮 Mexican</button>
-    <button class="filter-pill" data-cuisine="japanese" onclick="toggleCuisine(this)">🍣 Japanese</button>
-    <button class="filter-pill" data-cuisine="healthy" onclick="toggleCuisine(this)">🥗 Healthy</button>
-    <button class="filter-pill" data-cuisine="bakery" onclick="toggleCuisine(this)">🍰 Bakery</button>
-    <button class="filter-pill" data-cuisine="bbq" onclick="toggleCuisine(this)">🔥 BBQ</button>
-    <button class="filter-pill" data-cuisine="seafood" onclick="toggleCuisine(this)">🦐 Seafood</button>
-    <div class="filter-divider"></div>
-    <button class="filter-pill" data-price="1" onclick="togglePrice(this)">$</button>
-    <button class="filter-pill" data-price="2" onclick="togglePrice(this)">$$</button>
-    <button class="filter-pill" data-price="3" onclick="togglePrice(this)">$$$</button>
+  <div class="search">
+    <input class="search-in" id="zipInput" placeholder="Search any city, zip, or address..." />
+    <button class="search-go" id="searchBtn" onclick="handleSearch()">Find</button>
+    <button class="geo-btn" onclick="handleGeo()">📍</button>
   </div>
 
+  <div class="map-wrap" id="mapWrap" style="display:none">
+    <div class="map-shell" id="mapShell">
+      <div class="map-badge" id="mapBadge">0 gems</div>
+      <div id="map"></div>
+      <button class="map-tog" id="mapTog" onclick="toggleMapSize()">Expand</button>
+    </div>
+  </div>
+
+  <div id="scanBar" class="scan-bar" style="display:none"></div>
   <div id="errorMsg" class="error-bar" style="display:none"></div>
-  <div id="loadingBar" class="loading-bar" style="display:none"><div class="loading-bar-inner"></div></div>
+  <div id="loadingBar" class="loading-bar" style="display:none"><div class="loading-inner"></div></div>
+
+  <div class="filters">
+    <button class="pill" data-c="asian" onclick="toggleC(this)">🍜 Asian</button>
+    <button class="pill" data-c="italian" onclick="toggleC(this)">🍕 Italian</button>
+    <button class="pill" data-c="mexican" onclick="toggleC(this)">🌮 Mexican</button>
+    <button class="pill" data-c="japanese" onclick="toggleC(this)">🍣 Japanese</button>
+    <button class="pill" data-c="healthy" onclick="toggleC(this)">🥗 Healthy</button>
+    <button class="pill" data-c="bakery" onclick="toggleC(this)">🍰 Bakery</button>
+    <button class="pill" data-c="bbq" onclick="toggleC(this)">🔥 BBQ</button>
+    <button class="pill" data-c="seafood" onclick="toggleC(this)">🦐 Seafood</button>
+    <div class="fdiv"></div>
+    <button class="pill" data-p="1" onclick="toggleP(this)">$</button>
+    <button class="pill" data-p="2" onclick="toggleP(this)">$$</button>
+    <button class="pill" data-p="3" onclick="toggleP(this)">$$$</button>
+  </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchView('surprise',this)">Surprise Me</button>
+    <button class="tab on" onclick="switchView('discover',this)">Discover</button>
     <button class="tab" onclick="switchView('list',this)">All Gems</button>
     <button class="tab" onclick="switchView('saved',this)">Saved</button>
   </div>
 
-  <div class="surprise-section" id="viewSurprise">
-    <div class="surprise-card" id="surpriseCard">
-      <div class="surprise-empty" id="surpriseEmpty"><span class="surprise-empty-icon">🎲</span><p>Tap Surprise Me to discover a hidden gem</p></div>
-      <div id="surpriseContent" style="display:none">
-        <img class="surprise-photo" id="sPhoto" alt="" />
-        <div class="surprise-body">
-          <div class="surprise-gem-badge"><div class="gem-ring" id="sGemRing"><div class="gem-ring-inner" id="sGemScore"></div></div></div>
-          <h2 class="surprise-name" id="sName"></h2>
-          <div class="surprise-meta"><span class="tag" id="sCuisine"></span><span id="sBadge"></span><span class="open-badge" id="sOpen"></span></div>
-          <div class="surprise-stats"><span><span class="star">★</span> <span id="sRating"></span></span><span>·</span><span id="sReviews"></span><span>·</span><span id="sDistance"></span></div>
-          <p class="surprise-gem-line" id="sGemLine"></p>
-          <p class="surprise-address" id="sAddress"></p>
-        </div>
-        <div class="surprise-actions">
-          <button class="surprise-action" id="sSave" onclick="toggleSaveSurprise()"><span class="heart-icon" id="sHeartIcon">♡</span> <span id="sSaveLabel">Save</span></button>
-          <button class="surprise-action" onclick="shareSurprise()">↗ Share</button>
-          <button class="surprise-action" onclick="navigateSurprise()">◎ Navigate</button>
-        </div>
-      </div>
+  <!-- DISCOVER: swipeable card stack -->
+  <div class="discover" id="viewDiscover">
+    <div class="card-stack" id="cardStack">
+      <div class="discover-empty" id="discoverEmpty"><span>💎</span><p>Search a city to start discovering</p></div>
     </div>
-    <button class="surprise-big-btn" onclick="rollSurprise()"><span class="dice">🎲</span> Surprise Me</button>
+    <div class="swipe-hint" id="swipeHint" style="display:none">swipe left to skip · swipe right to save</div>
+    <div class="sc-actions" id="discoverActions" style="display:none">
+      <button class="sc-act skip" onclick="swipeAction('left')" title="Skip">✕</button>
+      <button class="sc-act share" onclick="shareDiscover()" title="Share">↗</button>
+      <button class="sc-act save" id="dSaveBtn" onclick="swipeAction('save')" title="Save">♡</button>
+      <button class="sc-act nav" onclick="navDiscover()" title="Navigate">◎</button>
+    </div>
   </div>
 
-  <div class="list-section" id="viewList" style="display:none">
-    <div class="list-header"><span class="list-count" id="listCount"></span>
+  <!-- LIST -->
+  <div class="list-sec" id="viewList" style="display:none">
+    <div class="list-hdr">
+      <span class="list-ct" id="listCt"></span>
       <div class="sort-pills">
-        <button class="sort-pill active" onclick="setSort('gem',this)">Gem</button>
-        <button class="sort-pill" onclick="setSort('rating',this)">Rating</button>
-        <button class="sort-pill" onclick="setSort('nearest',this)">Nearest</button>
+        <button class="spill on" onclick="setSort('gem',this)">Gem</button>
+        <button class="spill" onclick="setSort('rating',this)">Rating</button>
+        <button class="spill" onclick="setSort('nearest',this)">Nearest</button>
       </div>
     </div>
-    <div class="card-list" id="cardList"></div>
+    <div class="clist" id="cardList"></div>
   </div>
 
-  <div class="saved-section" id="viewSaved" style="display:none">
-    <div class="list-header"><span class="list-count" id="savedCount"></span></div>
-    <div class="card-list" id="savedList"></div>
+  <!-- SAVED -->
+  <div class="saved-sec" id="viewSaved" style="display:none">
+    <div class="list-hdr"><span class="list-ct" id="savedCt"></span></div>
+    <div class="clist" id="savedList"></div>
   </div>
 </div>
 
-<footer>Hidden Gems — Discover great restaurants anywhere</footer>
+<footer>Hidden Gems — discover restaurants you didn't know existed</footer>
 
 <script>
-window.onerror=function(m,u,l){console.error("JS Error:",m,"line",l);const el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+m;el.style.display="block"}};
+window.onerror=function(m,u,l){console.error("JS:",m,l);const el=document.getElementById("errorMsg");if(el){el.textContent="Error: "+m;el.style.display="block"}};
 
 let WORKER_URL=localStorage.getItem("hg_worker_url")||"https://hidden-gems-api.tstavet.workers.dev";
-let allGems=[],savedIds=new Set(),sortBy="gem",currentView="surprise",currentSurprise=null,isScanning=false;
+let allGems=[],savedIds=new Set(),sortBy="gem",currentView="discover",isScanning=false;
 let activeCuisines=new Set(),activePrices=new Set();
-let leafletMap=null,mapMarkers=[],searchCenter=null,userLat=null,userLng=null;
+let leafletMap=null,mapMarkers=[],searchCenter=null,userLat=null,userLng=null,mapVisible=false;
+let discoverPool=[],discoverIdx=0,currentCard=null,currentGem=null;
 
-/* Extended cuisine keywords with food-specific terms */
-const CUISINE_KW={
-  asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry","dim sum","dumpling","teriyaki","szechuan","sichuan","boba","pad thai","tikka","masala","biryani","samosa","spring roll","fried rice","lo mein","kung pao","general tso","orange chicken","satay","laksa","banh mi"],
+const CKW={
+  asian:["chinese","vietnamese","thai","korean","asian","indian","pho","wok","noodle","curry","dim sum","dumpling","teriyaki","szechuan","sichuan","boba","pad thai","tikka","masala","biryani","samosa","spring roll","fried rice","lo mein","kung pao","general tso","satay","laksa","banh mi"],
   japanese:["japanese","sushi","ramen","udon","tempura","hibachi","izakaya","tonkatsu","yakitori","bento","poke","miso","sake","sashimi","nigiri","maki","katsu","donburi","gyoza","edamame","matcha","robata","omakase","teppanyaki"],
   italian:["italian","pizza","pasta","trattoria","ristorante","gelato","panini","risotto","lasagna","calzone","bruschetta","antipasto","prosciutto","tiramisu","margherita","napoletana","osso buco","piccata","parmigiana","carbonara","bolognese","alfredo","caprese"],
   mexican:["mexican","taco","burrito","taqueria","latin","cuban","empanada","brazilian","argentine","peruvian","ceviche","colombian","churrasco","pupusa","arepa","enchilada","tamale","quesadilla","mole","pozole","elote","churro","carnitas","al pastor","birria","horchata","guacamole","salsa verde","chile relleno","fajita"],
-  healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","organic","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian","plant based","grain bowl","quinoa","avocado","poke bowl","buddha bowl","clean eating","farm to table","harvest"],
-  bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","muffin","cinnamon","tea house","boulangerie","patisserie","scone","macaron","espresso","latte","bagel","biscuit","cobbler","danish","eclair","strudel","crepe","french toast"],
-  bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole","pulled pork","smoked","hot chicken","cornbread","collard","jambalaya","gumbo","po boy","hush puppy","pit","char","flame","rotisserie","meat and three","country"],
-  seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar","clam","mussel","scallop","calamari","catch","pier","harbor","dock","tuna","salmon","mahi","grouper","snapper","cioppino","boil","steam"]
+  healthy:["vegan","vegetarian","salad","acai","smoothie","juice","bowl","organic","mediterranean","hummus","falafel","greek","lebanese","turkish","shawarma","kebab","gyro","moroccan","tunisian","plant based","grain bowl","quinoa","avocado","poke bowl","buddha bowl","farm to table","harvest"],
+  bakery:["bakery","pastry","cafe","pie","cake","donut","cupcake","bread","croissant","waffle","pancake","brunch","coffee","muffin","cinnamon","tea house","boulangerie","patisserie","scone","macaron","espresso","latte","bagel","biscuit","crepe","french toast"],
+  bbq:["bbq","barbecue","grill","smokehouse","brisket","ribs","wings","fried chicken","southern","soul food","cajun","creole","pulled pork","smoked","hot chicken","cornbread","jambalaya","gumbo","po boy","pit","rotisserie","meat and three","country"],
+  seafood:["seafood","fish","oyster","shrimp","crab","lobster","crawfish","raw bar","clam","mussel","scallop","calamari","catch","tuna","salmon","mahi","grouper","snapper","cioppino","boil"]
 };
-const CUISINE_COLORS={asian:"#e74c3c",japanese:"#e91e63",italian:"#9b59b6",mexican:"#00b894",healthy:"#00cec9",bakery:"#a29bfe",bbq:"#d63031",seafood:"#0984e3",default:"#636e72"};
+const CCOL={asian:"#e74c3c",japanese:"#e91e63",italian:"#9b59b6",mexican:"#00b894",healthy:"#00cec9",bakery:"#a29bfe",bbq:"#d63031",seafood:"#0984e3",default:"#636e72"};
 
 function loadSaved(){try{const s=localStorage.getItem("hg_saved");if(s)savedIds=new Set(JSON.parse(s))}catch(e){}}
 function persistSaved(){try{localStorage.setItem("hg_saved",JSON.stringify([...savedIds]))}catch(e){}}
 loadSaved();
-
 function openSettings(){document.getElementById("workerUrlInput").value=WORKER_URL;document.getElementById("settingsModal").style.display="flex"}
 function saveWorkerUrl(){const v=document.getElementById("workerUrlInput").value.trim().replace(/\/+$/,"");if(!v)return;WORKER_URL=v;localStorage.setItem("hg_worker_url",v);document.getElementById("settingsModal").style.display="none";toast("Saved")}
 document.getElementById("zipInput").addEventListener("keydown",e=>{if(e.key==="Enter")handleSearch()});
 
-/* ═══ NEW GEM SCORE ═══
-   Rewards: high rating, fewer reviews (more undiscovered)
-   Formula: rating weight (0-60) + scarcity bonus (0-40)
-   A 4.9 with 60 reviews = ~95. A 4.2 with 5000 reviews = ~35 */
-function gemScore(rating,reviewCount){
-  const ratingPart=((rating-4.0)/1.0)*60; // 4.0=0, 5.0=60
-  const scarcity=Math.max(0,40-Math.log10(Math.max(reviewCount,1))*12); // fewer reviews = higher
-  return Math.max(0,Math.min(100,Math.round(ratingPart+scarcity)));
-}
-
-/* ═══ BADGES ═══ */
-function getBadge(r){
-  const gs=gemScore(r.rating,r.reviewCount);
-  if(r.rating>=4.8&&r.reviewCount<150)return{label:"💎 Ultra Rare",cls:"badge-ultra"};
-  if(r.rating>=4.6&&r.reviewCount<300)return{label:"🔥 Trending",cls:"badge-fire"};
-  if(gs>=70)return{label:"⭐ Top Gem",cls:"badge-top"};
-  return null;
-}
-function badgeHTML(r){const b=getBadge(r);return b?`<span class="${b.cls}">${b.label}</span>`:""}
+/* ═══ SCORING ═══ */
+function gemScore(r,rc){const rp=((r-4)/1)*60;const sc=Math.max(0,40-Math.log10(Math.max(rc,1))*12);return Math.max(0,Math.min(100,Math.round(rp+sc)))}
+function getBadge(r){const gs=gemScore(r.rating,r.reviewCount);if(r.rating>=4.8&&r.reviewCount<150)return{l:"💎 Ultra Rare",c:"ultra"};if(r.rating>=4.6&&r.reviewCount<300)return{l:"🔥 Trending",c:"fire"};if(gs>=70)return{l:"⭐ Top Gem",c:"top"};return null}
 
 function priceStr(n){return n?"$".repeat(n):""}
-function getColor(group){return CUISINE_COLORS[group]||CUISINE_COLORS.default}
+function gc(g){return CCOL[g]||CCOL.default}
 function photoUrl(ref,w){return ref?`${WORKER_URL}/photo?ref=${ref}&maxwidth=${w||400}`:"";}
-function distanceMi(lat1,lng1,lat2,lng2){if(!lat1||!lat2)return null;const R=3959,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
-function fmtDist(d){if(!d&&d!==0)return"";return d<0.1?"Nearby":d<1?`${Math.round(d*5280/100)}00 ft`:`${d.toFixed(1)} mi`}
-
+function distMi(a,b,c,d){if(!a||!c)return null;const R=3959,dL=(c-a)*Math.PI/180,dN=(d-b)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dN/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function fmtD(d){if(!d&&d!==0)return"";return d<.1?"Nearby":d<1?`${Math.round(d*5280/100)}00 ft`:`${d.toFixed(1)} mi`}
 function gemLine(r){
   const rc=r.reviewCount,rt=r.rating,b=getBadge(r);
-  if(b&&b.cls==="badge-ultra")return`${rt} stars from just ${rc} reviews — discover it before everyone else`;
-  if(b&&b.cls==="badge-fire")return`Rising fast with ${rc} reviews — get here while it's still easy`;
-  if(rt>=4.8)return`Exceptional ${rt}-star rating across ${rc} reviews`;
-  if(rc<100)return`Only ${rc} reviews — you're getting here early`;
-  if(rc<250)return`Under 250 reviews — still under the radar`;
-  if(rc<500)return`Building a following with ${rc} reviews — quality speaks`;
-  if(rt>=4.5)return`${rt} stars across ${rc} reviews — consistently excellent`;
-  return`A proven ${rt}-star spot with ${rc} happy diners`;
+  if(b&&b.c==="ultra")return`${rt} stars from just ${rc} reviews. You're discovering this before everyone else.`;
+  if(b&&b.c==="fire")return`Rising fast with ${rc} reviews. Get here while it's still easy to get a table.`;
+  if(rt>=4.8)return`An exceptional ${rt}-star rating across ${rc} reviews. Consistently outstanding.`;
+  if(rc<100)return`Only ${rc} reviews. You're getting here early.`;
+  if(rc<250)return`Under 250 reviews and climbing. Still under the radar.`;
+  if(rc<500)return`Building a loyal following with ${rc} reviews. Quality speaks.`;
+  if(rt>=4.5)return`${rt} stars across ${rc} reviews. The kind of place regulars don't share.`;
+  return`A proven ${rt}-star spot. ${rc} happy diners can't be wrong.`;
 }
-
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2400)}
 function showError(msg){const el=document.getElementById("errorMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",5000)}
 
 /* ═══ MAP ═══ */
+function toggleMapPanel(){mapVisible=!mapVisible;document.getElementById("mapWrap").style.display=mapVisible?"block":"none";if(mapVisible&&leafletMap)setTimeout(()=>leafletMap.invalidateSize(),100)}
 function initMap(lat,lng){
   searchCenter=[lat,lng];userLat=lat;userLng=lng;
-  document.getElementById("mapWrap").style.display="block";
   if(leafletMap){leafletMap.remove();leafletMap=null}
   leafletMap=L.map("map",{zoomControl:false,attributionControl:false}).setView([lat,lng],13);
   L.control.zoom({position:"topright"}).addTo(leafletMap);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd"}).addTo(leafletMap);
-  L.circle([lat,lng],{radius:8047,color:"#e8c547",fillColor:"#e8c547",fillOpacity:.03,weight:1,opacity:.25,dashArray:"6 4"}).addTo(leafletMap);
-  L.circleMarker([lat,lng],{radius:6,color:"#e8c547",fillColor:"#e8c547",fillOpacity:1,weight:2}).addTo(leafletMap);
+  L.circle([lat,lng],{radius:8047,color:"#e2b93b",fillColor:"#e2b93b",fillOpacity:.03,weight:1,opacity:.2,dashArray:"6 4"}).addTo(leafletMap);
+  L.circleMarker([lat,lng],{radius:5,color:"#e2b93b",fillColor:"#e2b93b",fillOpacity:1,weight:2}).addTo(leafletMap);
 }
-function updateMapMarkers(){
+function updateMap(){
   if(!leafletMap)return;
   mapMarkers.forEach(m=>leafletMap.removeLayer(m));mapMarkers=[];
-  const filtered=getFiltered();
-  document.getElementById("mapBadge").textContent=`${filtered.length} gems`;
-  const mkIcon=r=>{
-    const b=getBadge(r);
-    const emoji=b&&b.cls==="badge-ultra"?"💎":b&&b.cls==="badge-fire"?"🔥":"💎";
-    const bg=b&&b.cls==="badge-ultra"?"#c084fc":b&&b.cls==="badge-fire"?"#fb923c":"#e8c547";
-    return L.divIcon({className:"",html:`<div style="width:26px;height:26px;background:${bg};border-radius:50%;border:3px solid #0c0b10;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px ${bg}66">${emoji}</div>`,iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-15]});
-  };
-  filtered.forEach(r=>{
+  const f=getFiltered();document.getElementById("mapBadge").textContent=`${f.length} gems`;
+  f.forEach(r=>{
     if(!r.lat||!r.lng)return;
-    const m=L.marker([r.lat,r.lng],{icon:mkIcon(r)}).addTo(leafletMap);
-    const d=r.distance?fmtDist(r.distance):"";
-    m.bindPopup(`<div class="popup-name">${r.name}</div><div class="popup-meta"><span class="popup-star">★</span> ${r.rating} · ${r.reviewCount} rev${d?" · "+d:""}</div><div style="margin-top:6px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name+" "+r.address)}" target="_blank" style="color:#e8c547;font-size:11px;font-weight:600;text-decoration:none">Navigate →</a></div>`,{maxWidth:240});
+    const b=getBadge(r),bg=b&&b.c==="ultra"?"#b47aff":b&&b.c==="fire"?"#f5923c":"#e2b93b";
+    const ic=L.divIcon({className:"",html:`<div style="width:24px;height:24px;background:${bg};border-radius:50%;border:2px solid #0a0a0f;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px ${bg}55">💎</div>`,iconSize:[24,24],iconAnchor:[12,12],popupAnchor:[0,-14]});
+    const m=L.marker([r.lat,r.lng],{icon:ic}).addTo(leafletMap);
+    const d=r.distance?fmtD(r.distance):"";
+    m.bindPopup(`<div style="font-weight:700;font-size:13px">${r.name}</div><div style="color:#9290a0;font-family:var(--mono);font-size:10px;margin-top:2px"><span style="color:#e2b93b">★</span> ${r.rating} · ${r.reviewCount} rev${d?" · "+d:""}</div><div style="margin-top:5px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name+" "+r.address)}" target="_blank" style="color:#e2b93b;font-size:10px;font-weight:600;text-decoration:none">Navigate →</a></div>`,{maxWidth:220});
     mapMarkers.push(m);
   });
-  if(mapMarkers.length>0)leafletMap.fitBounds(L.featureGroup(mapMarkers).getBounds().pad(0.1));
+  if(mapMarkers.length)leafletMap.fitBounds(L.featureGroup(mapMarkers).getBounds().pad(.1));
   else if(searchCenter)leafletMap.setView(searchCenter,13);
 }
-function toggleMapSize(){const c=document.getElementById("mapContainer"),b=document.getElementById("mapToggle");c.classList.toggle("expanded");b.textContent=c.classList.contains("expanded")?"Collapse":"Expand";setTimeout(()=>leafletMap.invalidateSize(),300)}
+function toggleMapSize(){const s=document.getElementById("mapShell"),t=document.getElementById("mapTog");s.classList.toggle("big");t.textContent=s.classList.contains("big")?"Collapse":"Expand";setTimeout(()=>leafletMap&&leafletMap.invalidateSize(),300)}
 
 /* ═══ FILTERS ═══ */
-function toggleCuisine(btn){const c=btn.dataset.cuisine;if(activeCuisines.has(c)){activeCuisines.delete(c);btn.classList.remove("active")}else{activeCuisines.add(c);btn.classList.add("active")}applyFilters()}
-function togglePrice(btn){const p=parseInt(btn.dataset.price);if(activePrices.has(p)){activePrices.delete(p);btn.classList.remove("active")}else{activePrices.add(p);btn.classList.add("active")}applyFilters()}
-function applyFilters(){renderCurrentView();updateMapMarkers()}
+function toggleC(b){const c=b.dataset.c;if(activeCuisines.has(c)){activeCuisines.delete(c);b.classList.remove("on")}else{activeCuisines.add(c);b.classList.add("on")}applyF()}
+function toggleP(b){const p=+b.dataset.p;if(activePrices.has(p)){activePrices.delete(p);b.classList.remove("on")}else{activePrices.add(p);b.classList.add("on")}applyF()}
+function applyF(){rebuildDiscoverPool();renderView();updateMap()}
 function getFiltered(){
-  let list=allGems;
-  if(activeCuisines.size>0){
-    list=list.filter(g=>{
-      const hay=(g.cuisine+" "+(g.cuisineGroup||"")+" "+g.name).toLowerCase();
-      for(const c of activeCuisines){const kws=CUISINE_KW[c]||[c];if(kws.some(k=>hay.includes(k)))return true}
-      return false;
-    });
-  }
-  if(activePrices.size>0)list=list.filter(g=>activePrices.has(g.priceLevel));
-  return list;
+  let l=allGems;
+  if(activeCuisines.size){l=l.filter(g=>{const h=(g.cuisine+" "+(g.cuisineGroup||"")+" "+g.name).toLowerCase();for(const c of activeCuisines){if((CKW[c]||[c]).some(k=>h.includes(k)))return true}return false})}
+  if(activePrices.size)l=l.filter(g=>activePrices.has(g.priceLevel));
+  return l;
 }
 
 /* ═══ SORTING ═══ */
-function getSorted(list){return[...list].sort((a,b)=>{if(sortBy==="rating")return b.rating-a.rating;if(sortBy==="nearest")return(a.distance||99)-(b.distance||99);return gemScore(b.rating,b.reviewCount)-gemScore(a.rating,a.reviewCount)})}
-function setSort(s,btn){sortBy=s;document.querySelectorAll(".sort-pill").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderList()}
+function getSorted(l){return[...l].sort((a,b)=>{if(sortBy==="rating")return b.rating-a.rating;if(sortBy==="nearest")return(a.distance||99)-(b.distance||99);return gemScore(b.rating,b.reviewCount)-gemScore(a.rating,a.reviewCount)})}
+function setSort(s,b){sortBy=s;document.querySelectorAll(".spill").forEach(x=>x.classList.remove("on"));b.classList.add("on");renderList()}
 
 /* ═══ VIEWS ═══ */
-function switchView(view,btn){
-  currentView=view;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));btn.classList.add("active");
-  document.getElementById("viewSurprise").style.display=view==="surprise"?"block":"none";
-  document.getElementById("viewList").style.display=view==="list"?"block":"none";
-  document.getElementById("viewSaved").style.display=view==="saved"?"block":"none";
-  if(view==="list")renderList();if(view==="saved")renderSaved();
-}
-function renderCurrentView(){if(currentView==="list")renderList();else if(currentView==="saved")renderSaved()}
+function switchView(v,b){currentView=v;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));b.classList.add("on");document.getElementById("viewDiscover").style.display=v==="discover"?"block":"none";document.getElementById("viewList").style.display=v==="list"?"block":"none";document.getElementById("viewSaved").style.display=v==="saved"?"block":"none";renderView()}
+function renderView(){if(currentView==="list")renderList();else if(currentView==="saved")renderSaved();else showCurrentDiscoverCard()}
 
-/* ═══ SURPRISE ═══ */
-function rollSurprise(){
-  const pool=getFiltered();
-  if(!pool.length){document.getElementById("surpriseEmpty").style.display="block";document.getElementById("surpriseContent").style.display="none";document.getElementById("surpriseEmpty").querySelector("p").textContent=activeCuisines.size?"No gems match those filters.":isScanning?"Still scanning... try again in a moment.":"No gems found. Search a location.";return}
-  currentSurprise=pool[Math.floor(Math.random()*pool.length)];
-  const card=document.getElementById("surpriseCard");card.classList.add("flipping");
-  setTimeout(()=>{fillSurprise(currentSurprise);document.getElementById("surpriseEmpty").style.display="none";document.getElementById("surpriseContent").style.display="block"},240);
-  setTimeout(()=>card.classList.remove("flipping"),600);
+/* ═══ DISCOVER: SWIPE CARDS ═══ */
+function rebuildDiscoverPool(){
+  const f=getFiltered();
+  // Shuffle using gem score as weight — better gems appear more often
+  discoverPool=getSorted(f);
+  discoverIdx=0;
 }
-function fillSurprise(r){
-  const c=getColor(r.cuisineGroup),gs=gemScore(r.rating,r.reviewCount);
-  const photo=document.getElementById("sPhoto");
-  if(r.photoRef){photo.src=photoUrl(r.photoRef,600);photo.style.display="block"}else{photo.style.display="none"}
-  document.getElementById("sName").textContent=r.name;
-  const tag=document.getElementById("sCuisine");tag.textContent=r.cuisine;tag.style.cssText=`background:${c}20;color:${c}`;
-  const badgeEl=document.getElementById("sBadge");const b=getBadge(r);
-  if(b){badgeEl.className=b.cls;badgeEl.textContent=b.label;badgeEl.style.display="inline"}else{badgeEl.style.display="none"}
-  document.getElementById("sRating").textContent=r.rating;
-  document.getElementById("sReviews").textContent=r.reviewCount+" reviews";
-  document.getElementById("sDistance").textContent=fmtDist(r.distance);
-  const openEl=document.getElementById("sOpen");
-  if(r.openNow===true){openEl.textContent="Open now";openEl.className="open-badge open";openEl.style.display="inline"}
-  else if(r.openNow===false){openEl.textContent="Closed";openEl.className="open-badge closed";openEl.style.display="inline"}
-  else{openEl.style.display="none"}
-  document.getElementById("sGemLine").textContent=gemLine(r);
-  document.getElementById("sAddress").textContent=r.address+(r.distance?" · "+fmtDist(r.distance):"");
-  document.getElementById("sGemScore").textContent=gs;
-  document.getElementById("sGemRing").style.background=`conic-gradient(var(--accent) ${gs}%,var(--surface-2) ${gs}%)`;
-  const saved=savedIds.has(r.placeId);document.getElementById("sSave").className="surprise-action"+(saved?" saved":"");
-  document.getElementById("sHeartIcon").textContent=saved?"♥":"♡";document.getElementById("sSaveLabel").textContent=saved?"Saved":"Save";
+
+function showCurrentDiscoverCard(){
+  const stack=document.getElementById("cardStack");
+  const hint=document.getElementById("swipeHint");
+  const acts=document.getElementById("discoverActions");
+  if(!discoverPool.length){
+    stack.innerHTML=`<div class="discover-empty"><span>💎</span><p>${isScanning?"Scanning... gems will appear shortly":"Search a city to start discovering"}</p></div>`;
+    hint.style.display="none";acts.style.display="none";return;
+  }
+  if(discoverIdx>=discoverPool.length)discoverIdx=0;
+  const r=discoverPool[discoverIdx];
+  currentGem=r;
+  const b=getBadge(r),co=gc(r.cuisineGroup),gs=gemScore(r.rating,r.reviewCount);
+  const saved=savedIds.has(r.placeId);
+
+  let badgePill="";
+  if(b){const cls=b.c==="ultra"?"sc-gem-ultra":b.c==="fire"?"sc-gem-fire":"sc-gem-top";badgePill=`<span class="sc-gem-pill ${cls}">${b.l}</span>`}
+
+  const photoHtml=r.photoRef?`<img class="sc-photo" src="${photoUrl(r.photoRef,600)}" alt="${r.name}">`:`<div class="sc-photo-empty">🍽</div>`;
+  const openHtml=r.openNow===true?'<span class="sc-open open">Open now</span>':r.openNow===false?'<span class="sc-open closed">Closed</span>':"";
+  const dist=fmtD(r.distance);
+
+  stack.innerHTML=`<div class="swipe-card entering" id="activeCard">
+    <div class="sc-photo-wrap">${photoHtml}<div class="sc-gradient"></div><div class="sc-badge-wrap">${badgePill}</div><div class="sc-score">${gs}</div></div>
+    <div class="sc-body">
+      <div class="sc-name">${r.name}</div>
+      <div class="sc-story">${gemLine(r)}</div>
+      <div class="sc-details"><span class="sc-tag" style="background:${co}18;color:${co}">${r.cuisine}</span>${r.priceLevel?`<span class="lc-price">${priceStr(r.priceLevel)}</span>`:""}${openHtml}</div>
+      <div class="sc-stats"><span><span class="sc-star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} reviews</span>${dist?`<span>·</span><span>${dist}</span>`:""}</div>
+      <div class="sc-addr">${r.address}</div>
+    </div>
+  </div>`;
+
+  hint.style.display="block";acts.style.display="flex";
+  const saveBtn=document.getElementById("dSaveBtn");
+  saveBtn.className="sc-act save"+(saved?" saved":"");
+  saveBtn.textContent=saved?"♥":"♡";
+
+  // Attach swipe handlers
+  currentCard=document.getElementById("activeCard");
+  setupSwipe(currentCard);
 }
-function toggleSaveSurprise(){if(!currentSurprise)return;const id=currentSurprise.placeId;if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();fillSurprise(currentSurprise)}
-function shareSurprise(){if(!currentSurprise)return;const r=currentSurprise,text=`💎 Hidden Gem: ${r.name}\n★ ${r.rating} · ${r.reviewCount} reviews\n📍 ${r.address}`;if(navigator.share)navigator.share({title:"Hidden Gem: "+r.name,text}).catch(()=>{});else navigator.clipboard.writeText(text).then(()=>toast("Copied")).catch(()=>{})}
-function navigateSurprise(){if(!currentSurprise)return;window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentSurprise.name+" "+currentSurprise.address)}`,"_blank")}
+
+/* Touch/mouse swipe on discover card */
+function setupSwipe(el){
+  let startX=0,startY=0,dx=0,isDragging=false,startTime=0;
+  const start=e=>{const t=e.touches?e.touches[0]:e;startX=t.clientX;startY=t.clientY;dx=0;isDragging=true;startTime=Date.now();el.classList.add("dragging")};
+  const move=e=>{if(!isDragging)return;const t=e.touches?e.touches[0]:e;dx=t.clientX-startX;const dy=t.clientY-startY;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>10)e.preventDefault();el.style.transform=`translateX(${dx}px) rotate(${dx*.06}deg)`;el.style.opacity=Math.max(.4,1-Math.abs(dx)/400)};
+  const end=()=>{
+    if(!isDragging)return;isDragging=false;el.classList.remove("dragging");
+    const fast=Date.now()-startTime<250&&Math.abs(dx)>30;
+    if(dx>80||fast&&dx>30){el.classList.add("exit-right");setTimeout(()=>{saveCurrentGem();advanceCard()},300)}
+    else if(dx<-80||fast&&dx<-30){el.classList.add("exit-left");setTimeout(()=>advanceCard(),300)}
+    else{el.style.transform="";el.style.opacity=""}
+  };
+  el.addEventListener("touchstart",start,{passive:true});
+  el.addEventListener("touchmove",move,{passive:false});
+  el.addEventListener("touchend",end);
+  el.addEventListener("mousedown",start);
+  window.addEventListener("mousemove",move);
+  window.addEventListener("mouseup",end);
+}
+
+function advanceCard(){discoverIdx++;if(discoverIdx>=discoverPool.length)discoverIdx=0;showCurrentDiscoverCard()}
+function saveCurrentGem(){if(!currentGem)return;if(!savedIds.has(currentGem.placeId)){savedIds.add(currentGem.placeId);persistSaved();toast("Saved ✨")}}
+function swipeAction(dir){
+  if(!currentCard)return;
+  if(dir==="left"){currentCard.classList.add("exit-left");setTimeout(()=>advanceCard(),300)}
+  else if(dir==="save"){
+    if(savedIds.has(currentGem.placeId)){savedIds.delete(currentGem.placeId);persistSaved();toast("Removed");showCurrentDiscoverCard()}
+    else{currentCard.classList.add("exit-right");setTimeout(()=>{saveCurrentGem();advanceCard()},300)}
+  }
+}
+function shareDiscover(){if(!currentGem)return;const r=currentGem,t=`💎 Hidden Gem: ${r.name}\n★ ${r.rating} · ${r.reviewCount} reviews\n📍 ${r.address}`;if(navigator.share)navigator.share({title:"Hidden Gem: "+r.name,text:t}).catch(()=>{});else navigator.clipboard.writeText(t).then(()=>toast("Copied")).catch(()=>{})}
+function navDiscover(){if(!currentGem)return;window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentGem.name+" "+currentGem.address)}`,"_blank")}
 
 /* ═══ LIST ═══ */
 function renderList(){
-  const filtered=getFiltered(),sorted=getSorted(filtered);
-  document.getElementById("listCount").innerHTML=`<strong>${sorted.length}</strong> gem${sorted.length!==1?"s":""}`;
+  const f=getFiltered(),s=getSorted(f);
+  document.getElementById("listCt").innerHTML=`<strong>${s.length}</strong> gem${s.length!==1?"s":""}`;
   const c=document.getElementById("cardList");
-  if(!sorted.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">🔍</span><p>${isScanning?"Scanning... results will appear shortly.":"No gems match your filters."}</p></div>`;return}
-  c.innerHTML=sorted.map((r,i)=>cardHTML(r,i)).join("");
+  if(!s.length){c.innerHTML=`<div class="empty-state"><span>🔍</span><p>${isScanning?"Scanning...":"No gems match."}</p></div>`;return}
+  c.innerHTML=s.map((r,i)=>lcHTML(r,i)).join("");
 }
-function cardHTML(r,i){
-  const c=getColor(r.cuisineGroup),gs=gemScore(r.rating,r.reviewCount),saved=savedIds.has(r.placeId);
-  const dist=fmtDist(r.distance);
-  const photoTag=r.photoRef?`<img class="card-photo" src="${photoUrl(r.photoRef,400)}" alt="${r.name}" loading="lazy"/>`:"";
-  const openTag=r.openNow===true?'<span class="open-badge open" style="font-size:10px;padding:1px 6px">Open</span>':r.openNow===false?'<span class="open-badge closed" style="font-size:10px;padding:1px 6px">Closed</span>':"";
-  const badge=badgeHTML(r);
+function lcHTML(r,i){
+  const co=gc(r.cuisineGroup),saved=savedIds.has(r.placeId),dist=fmtD(r.distance),gs=gemScore(r.rating,r.reviewCount);
   const b=getBadge(r);
-  const cardCls=b&&b.cls==="badge-ultra"?"card card-ultra":b&&b.cls==="badge-fire"?"card card-fire":"card";
-  return`<div class="${cardCls}" style="animation:fadeUp .35s ease ${Math.min(i*.03,.6)}s both">${photoTag}<div class="card-body"><div class="card-row"><div style="flex:1;min-width:0"><h3>${r.name} ${badge}</h3><div class="card-tags"><span class="card-cuisine" style="background:${c}18;color:${c}">${r.cuisine}</span>${r.priceLevel?`<span class="card-price">${priceStr(r.priceLevel)}</span>`:""}${openTag}</div><div class="card-stats"><span><span class="star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} rev</span>${dist?`<span>·</span><span>${dist}</span>`:""}<span>·</span><span style="color:var(--accent)">${gs}✦</span></div><p class="card-gem-line">${gemLine(r)}</p><p class="card-address">${r.address}</p></div><div class="card-actions"><button class="card-action-btn ${saved?"saved":""}" onclick="event.stopPropagation();toggleSaveCard('${r.placeId}')">${saved?"♥":"♡"}</button><button class="card-action-btn" onclick="event.stopPropagation();navCard('${esc(r.name)}','${esc(r.address)}')">◎</button></div></div></div></div>`;
+  const ph=r.photoRef?`<img class="lc-photo" src="${photoUrl(r.photoRef,400)}" alt="${r.name}" loading="lazy">`:"";
+  const op=r.openNow===true?'<span class="sc-open open" style="font-size:9px;padding:2px 6px">Open</span>':r.openNow===false?'<span class="sc-open closed" style="font-size:9px;padding:2px 6px">Closed</span>':"";
+  const bdg=b?`<span class="badge-s ${b.c==="ultra"?"bu":b.c==="fire"?"bf":"bt"}">${b.l}</span>`:"";
+  const cls="lc"+(b&&b.c==="ultra"?" lc-ultra":"")+(b&&b.c==="fire"?" lc-fire":"");
+  return`<div class="${cls}" style="animation:fadeUp .35s ease ${Math.min(i*.03,.5)}s both">${ph}<div class="lc-body"><div class="lc-top"><div class="lc-info"><div class="lc-name">${r.name} ${bdg}</div><div class="lc-story">${gemLine(r)}</div><div class="lc-tags"><span class="lc-cuisine" style="background:${co}18;color:${co}">${r.cuisine}</span>${r.priceLevel?`<span class="lc-price">${priceStr(r.priceLevel)}</span>`:""}${op}</div><div class="lc-stats"><span><span class="sc-star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} rev</span>${dist?`<span>·</span><span>${dist}</span>`:""}<span>·</span><span style="color:var(--gold)">${gs}✦</span></div><div class="lc-addr">${r.address}</div></div><div class="lc-acts"><button class="lc-btn ${saved?"saved":""}" onclick="event.stopPropagation();togSave('${r.placeId}')">${saved?"♥":"♡"}</button><button class="lc-btn" onclick="event.stopPropagation();navTo('${esc(r.name)}','${esc(r.address)}')">◎</button></div></div></div></div>`;
 }
 function esc(s){return s.replace(/'/g,"\\'")}
-function toggleSaveCard(id){if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();renderList();if(currentView==="saved")renderSaved();updateMapMarkers()}
-function navCard(n,a){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n+" "+a)}`,"_blank")}
+function togSave(id){if(savedIds.has(id)){savedIds.delete(id);toast("Removed")}else{savedIds.add(id);toast("Saved ✨")}persistSaved();renderList();if(currentView==="saved")renderSaved();updateMap()}
+function navTo(n,a){window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n+" "+a)}`,"_blank")}
 
 /* ═══ SAVED ═══ */
 function renderSaved(){
-  const saved=allGems.filter(g=>savedIds.has(g.placeId));
-  document.getElementById("savedCount").innerHTML=`<strong>${saved.length}</strong> saved`;
+  const s=allGems.filter(g=>savedIds.has(g.placeId));
+  document.getElementById("savedCt").innerHTML=`<strong>${s.length}</strong> saved`;
   const c=document.getElementById("savedList");
-  if(!saved.length){c.innerHTML=`<div class="saved-empty"><span class="saved-empty-icon">♡</span><p>No saved gems yet.</p></div>`;return}
-  c.innerHTML=getSorted(saved).map((r,i)=>cardHTML(r,i)).join("");
+  if(!s.length){c.innerHTML=`<div class="empty-state"><span>♡</span><p>Swipe right on gems you love</p></div>`;return}
+  c.innerHTML=getSorted(s).map((r,i)=>lcHTML(r,i)).join("");
 }
 
-/* ═══ API + INCREMENTAL LOADING ═══ */
+/* ═══ API ═══ */
 async function geocode(q){const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;throw new Error("Location not found.")}
-
 function processOne(p,cLat,cLng){
   if(p.rating<4.0||p.user_ratings_total<50)return null;
   const rawType=(p.types||[]).find(t=>!["restaurant","food","point_of_interest","establishment","meal_takeaway","meal_delivery","store"].includes(t))||"Restaurant";
-  const nameLow=(p.name||"").toLowerCase();
-  const allText=(nameLow+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
+  const allText=((p.name||"")+" "+(p.types||[]).join(" ")+" "+rawType).toLowerCase();
   let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
-  const rules=[{g:"asian",k:CUISINE_KW.asian},{g:"japanese",k:CUISINE_KW.japanese},{g:"italian",k:CUISINE_KW.italian},{g:"mexican",k:CUISINE_KW.mexican},{g:"healthy",k:CUISINE_KW.healthy},{g:"bakery",k:CUISINE_KW.bakery},{g:"bbq",k:CUISINE_KW.bbq},{g:"seafood",k:CUISINE_KW.seafood}];
-  for(const rule of rules){if(rule.k.some(k=>allText.includes(k))){cuisineGroup=rule.g;break}}
+  for(const[g,kws]of Object.entries(CKW)){if(kws.some(k=>allText.includes(k))){cuisineGroup=g;break}}
   const lat=p.geometry?.location?.lat,lng=p.geometry?.location?.lng;
-  return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance:distanceMi(cLat,cLng,lat,lng),photoRef:p.photos?.[0]?.photo_reference||null,openNow:p.opening_hours?.open_now??null};
+  return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance:distMi(cLat,cLng,lat,lng),photoRef:p.photos?.[0]?.photo_reference||null,openNow:p.opening_hours?.open_now??null};
 }
 
 async function scanAndStream(lat,lng){
-  isScanning=true;allGems=[];
-  const seen=new Set();
-  const status=document.getElementById("scanStatus");
-  status.style.display="block";
-
+  isScanning=true;allGems=[];const seen=new Set();
+  const sb=document.getElementById("scanBar");sb.style.display="block";
   const offsets=[];const step=0.015;
   for(let dl=-0.05;dl<=0.05;dl+=step)for(let dn=-0.05;dn<=0.05;dn+=step){if(Math.sqrt(dl*dl+dn*dn)<=0.055)offsets.push([dl,dn])}
-
-  const searches=[
-    {type:"restaurant",keyword:""},
-    {type:"restaurant",keyword:"dinner"},
-    {type:"restaurant",keyword:"lunch"},
-    {type:"restaurant",keyword:"brunch"},
-    {type:"cafe",keyword:""},
-    {type:"bakery",keyword:""},
-  ];
-
-  let completed=0;const total=offsets.length;
-  let lastRender=0;
-
+  const searches=[{type:"restaurant",keyword:""},{type:"restaurant",keyword:"dinner"},{type:"restaurant",keyword:"lunch"},{type:"restaurant",keyword:"brunch"},{type:"cafe",keyword:""},{type:"bakery",keyword:""}];
+  let done=0;const total=offsets.length;let lastR=0;
   for(let i=0;i<offsets.length;i++){
-    const[dl,dn]=offsets[i];
-    const latStr=(lat+dl).toFixed(6),lngStr=(lng+dn).toFixed(6);
-
-    const promises=searches.map(s=>{
-      let url=`${WORKER_URL}/nearby?lat=${latStr}&lng=${lngStr}&radius=1500&type=${s.type}`;
-      if(s.keyword)url+=`&keyword=${encodeURIComponent(s.keyword)}`;
-      return fetch(url).then(r=>r.json()).then(d=>d.results||[]).catch(()=>[]);
-    });
-
-    const results=await Promise.all(promises);
-    let newCount=0;
-    results.flat().forEach(p=>{
-      if(seen.has(p.place_id))return;
-      seen.add(p.place_id);
-      const gem=processOne(p,lat,lng);
-      if(gem){allGems.push(gem);newCount++}
-    });
-
-    completed++;
-    const pct=Math.round(completed/total*100);
-    status.textContent=`Scanning area... ${pct}% · ${allGems.length} gems found`;
-
-    // Incrementally update UI every few zones or when new gems found
+    const[dl,dn]=offsets[i];const la=(lat+dl).toFixed(6),ln=(lng+dn).toFixed(6);
+    const ps=searches.map(s=>{let u=`${WORKER_URL}/nearby?lat=${la}&lng=${ln}&radius=1500&type=${s.type}`;if(s.keyword)u+=`&keyword=${encodeURIComponent(s.keyword)}`;return fetch(u).then(r=>r.json()).then(d=>d.results||[]).catch(()=>[])});
+    const res=await Promise.all(ps);let nc=0;
+    res.flat().forEach(p=>{if(seen.has(p.place_id))return;seen.add(p.place_id);const g=processOne(p,lat,lng);if(g){allGems.push(g);nc++}});
+    done++;sb.textContent=`Scanning... ${Math.round(done/total*100)}% · ${allGems.length} gems`;
     const now=Date.now();
-    if(newCount>0&&(now-lastRender>800||completed===total)){
-      lastRender=now;
-      renderCurrentView();
-      updateMapMarkers();
-    }
+    if(nc>0&&(now-lastR>800||done===total)){lastR=now;rebuildDiscoverPool();renderView();updateMap()}
   }
-
-  status.style.display="none";
-  isScanning=false;
-  renderCurrentView();
-  updateMapMarkers();
-  toast(`Done! Found ${allGems.length} gems`);
-  console.log(`Scan complete: ${offsets.length} zones × ${searches.length} = ${offsets.length*searches.length} calls. ${allGems.length} gems from ${seen.size} unique places.`);
+  sb.style.display="none";isScanning=false;rebuildDiscoverPool();renderView();updateMap();
+  toast(`Found ${allGems.length} gems`);
 }
 
 async function handleSearch(){
   const q=document.getElementById("zipInput").value.trim();if(!q)return;
   const btn=document.getElementById("searchBtn");btn.textContent="...";document.getElementById("loadingBar").style.display="block";
-  try{
-    const{lat,lng}=await geocode(q);
-    initMap(lat,lng);
-    document.getElementById("loadingBar").style.display="none";
-    btn.textContent="Find";
-    await scanAndStream(lat,lng);
-  }catch(e){
-    if((e.message||"").includes("Failed to fetch"))showError("Can't reach API. Check settings.");
-    else showError(e.message||"Search failed.");
-    btn.textContent="Find";document.getElementById("loadingBar").style.display="none";
-  }
+  try{const{lat,lng}=await geocode(q);initMap(lat,lng);document.getElementById("loadingBar").style.display="none";btn.textContent="Find";await scanAndStream(lat,lng)}
+  catch(e){if((e.message||"").includes("Failed to fetch"))showError("Can't reach API. Check settings.");else showError(e.message||"Search failed.");btn.textContent="Find";document.getElementById("loadingBar").style.display="none"}
 }
-
 function handleGeo(){
   if(!navigator.geolocation){showError("Geolocation not supported.");return}
   document.getElementById("loadingBar").style.display="block";
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    const lat=pos.coords.latitude,lng=pos.coords.longitude;
-    document.getElementById("zipInput").value="📍 Current location";
-    initMap(lat,lng);
-    document.getElementById("loadingBar").style.display="none";
-    await scanAndStream(lat,lng);
-  },()=>{showError("Location denied.");document.getElementById("loadingBar").style.display="none"});
+  navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude;document.getElementById("zipInput").value="📍 Current location";initMap(lat,lng);document.getElementById("loadingBar").style.display="none";await scanAndStream(lat,lng)},()=>{showError("Location denied.");document.getElementById("loadingBar").style.display="none"});
 }
 
-/* ═══ FIRST VISIT: detect location or prompt ═══ */
-(function init(){
-  const lastCity=localStorage.getItem("hg_last_city");
-  if(lastCity){
-    document.getElementById("zipInput").value=lastCity;
-    setTimeout(()=>handleSearch(),200);
-  }else if(navigator.geolocation){
-    // Try geolocation silently
-    navigator.geolocation.getCurrentPosition(pos=>{
-      document.getElementById("zipInput").value="📍 Current location";
-      const lat=pos.coords.latitude,lng=pos.coords.longitude;
-      initMap(lat,lng);scanAndStream(lat,lng);
-    },()=>{
-      // Fallback: prompt them to type
-      document.getElementById("zipInput").focus();
-      toast("Search any city to find hidden gems");
-    },{timeout:5000});
-  }else{
-    document.getElementById("zipInput").focus();
-    toast("Search any city to find hidden gems");
-  }
+/* ═══ INIT ═══ */
+(function(){
+  const lc=localStorage.getItem("hg_last_city");
+  if(lc){document.getElementById("zipInput").value=lc;setTimeout(()=>handleSearch(),200)}
+  else if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{document.getElementById("zipInput").value="📍 Current location";initMap(pos.coords.latitude,pos.coords.longitude);scanAndStream(pos.coords.latitude,pos.coords.longitude)},()=>{document.getElementById("zipInput").focus();toast("Search any city to discover gems")},{timeout:5000});
+  }else{document.getElementById("zipInput").focus();toast("Search any city to discover gems")}
 })();
-
-// Remember last searched city
-const _origSearch=handleSearch;
-handleSearch=async function(){
-  const q=document.getElementById("zipInput").value.trim();
-  if(q&&!q.startsWith("📍"))localStorage.setItem("hg_last_city",q);
-  return _origSearch();
-};
+const _hs=handleSearch;handleSearch=async function(){const q=document.getElementById("zipInput").value.trim();if(q&&!q.startsWith("📍"))localStorage.setItem("hg_last_city",q);return _hs()};
 </script>
 </body>
 </html>
