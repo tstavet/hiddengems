@@ -57,6 +57,14 @@ button{font-family:var(--sans);cursor:pointer}
 .pill:hover{border-color:var(--text-muted)}
 .pill.on{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
 .fdiv{width:1px;height:18px;background:var(--border);margin:0 3px}
+.range-wrap{display:flex;align-items:center;gap:8px;width:100%;margin-top:4px}
+.range-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap}
+.range-val{font-size:10px;font-family:var(--mono);color:var(--gold);font-weight:600;min-width:38px}
+.range-input{-webkit-appearance:none;appearance:none;flex:1;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
+.range-input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid var(--bg);box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;transition:transform .15s}
+.range-input::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.range-input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid var(--bg);box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer}
+.range-input::-moz-range-track{height:4px;border-radius:2px;background:var(--border)}
 
 /* ═══ TABS ═══ */
 .tabs{display:flex;gap:3px;justify-content:center;margin:10px 0 14px;animation:fadeUp .5s ease .06s both}
@@ -73,11 +81,18 @@ button{font-family:var(--sans);cursor:pointer}
 .swipe-card.exit-right{animation:slideRight .35s ease both;pointer-events:none}
 .swipe-card.dragging{transition:none !important}
 
-/* Card photo hero */
+/* Card photo hero + carousel */
 .sc-photo-wrap{position:relative;width:100%;height:260px;overflow:hidden;background:var(--surface-2)}
 .sc-photo{width:100%;height:100%;object-fit:cover;display:block}
 .sc-photo-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;opacity:.15}
+.sc-carousel{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sc-carousel::-webkit-scrollbar{display:none}
+.sc-carousel img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.sc-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3}
+.sc-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .2s}
+.sc-dot.on{background:rgba(255,255,255,.9);width:16px;border-radius:3px}
 .sc-gradient{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
+.sc-distance{position:absolute;bottom:14px;left:14px;z-index:3;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(10,10,15,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text);border:1px solid rgba(255,255,255,.08)}
 .sc-badge-wrap{position:absolute;top:14px;left:14px;display:flex;gap:6px}
 .sc-gem-pill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .sc-gem-ultra{background:#b47aff30;color:#d4b0ff;border:1px solid #b47aff40}
@@ -126,7 +141,9 @@ button{font-family:var(--sans);cursor:pointer}
 .lc{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;transition:all .3s;cursor:pointer;position:relative}
 .lc:hover{border-color:var(--text-muted);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .lc.lc-ultra{border-color:#b47aff25}.lc.lc-fire{border-color:#f5923c25}
-.lc-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2)}
+.lc-photo{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface-2);position:relative}
+.lc-photo-wrap{position:relative}
+.lc-dist{position:absolute;bottom:8px;left:8px;padding:3px 10px;border-radius:14px;background:rgba(10,10,15,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:10px;font-weight:600;font-family:var(--mono);color:var(--text);border:1px solid rgba(255,255,255,.08)}
 .lc-body{padding:14px 18px}
 .lc-top{display:flex;justify-content:space-between;align-items:flex-start}
 .lc-info{flex:1;min-width:0}
@@ -232,6 +249,11 @@ footer{text-align:center;padding:20px 16px 32px;color:var(--text-muted);font-siz
     <button class="pill" data-p="1" onclick="toggleP(this)">$</button>
     <button class="pill" data-p="2" onclick="toggleP(this)">$$</button>
     <button class="pill" data-p="3" onclick="toggleP(this)">$$$</button>
+    <div class="range-wrap">
+      <span class="range-label">📍 Distance</span>
+      <input type="range" class="range-input" id="distRange" min="1" max="25" value="5" oninput="updateDistFilter(this.value)">
+      <span class="range-val" id="distVal">5 mi</span>
+    </div>
   </div>
 
   <div class="tabs">
@@ -282,7 +304,7 @@ window.onerror=function(m,u,l){console.error("JS:",m,l);const el=document.getEle
 
 let WORKER_URL=localStorage.getItem("hg_worker_url")||"https://hidden-gems-api.tstavet.workers.dev";
 let allGems=[],savedIds=new Set(),sortBy="gem",currentView="discover",isScanning=false;
-let activeCuisines=new Set(),activePrices=new Set();
+let activeCuisines=new Set(),activePrices=new Set(),maxDistance=5;
 let leafletMap=null,mapMarkers=[],searchCenter=null,userLat=null,userLng=null,mapVisible=false;
 let discoverPool=[],discoverIdx=0,currentCard=null,currentGem=null;
 
@@ -336,7 +358,7 @@ function initMap(lat,lng){
   leafletMap=L.map("map",{zoomControl:false,attributionControl:false}).setView([lat,lng],13);
   L.control.zoom({position:"topright"}).addTo(leafletMap);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd"}).addTo(leafletMap);
-  L.circle([lat,lng],{radius:8047,color:"#e2b93b",fillColor:"#e2b93b",fillOpacity:.03,weight:1,opacity:.2,dashArray:"6 4"}).addTo(leafletMap);
+  L.circle([lat,lng],{radius:maxDistance*1609,color:"#e2b93b",fillColor:"#e2b93b",fillOpacity:.03,weight:1,opacity:.2,dashArray:"6 4"}).addTo(leafletMap);
   L.circleMarker([lat,lng],{radius:5,color:"#e2b93b",fillColor:"#e2b93b",fillOpacity:1,weight:2}).addTo(leafletMap);
 }
 function updateMap(){
@@ -360,9 +382,11 @@ function toggleMapSize(){const s=document.getElementById("mapShell"),t=document.
 /* ═══ FILTERS ═══ */
 function toggleC(b){const c=b.dataset.c;if(activeCuisines.has(c)){activeCuisines.delete(c);b.classList.remove("on")}else{activeCuisines.add(c);b.classList.add("on")}applyF()}
 function toggleP(b){const p=+b.dataset.p;if(activePrices.has(p)){activePrices.delete(p);b.classList.remove("on")}else{activePrices.add(p);b.classList.add("on")}applyF()}
+function updateDistFilter(v){maxDistance=parseFloat(v);document.getElementById("distVal").textContent=v>=25?"Any":v+" mi";applyF()}
 function applyF(){rebuildDiscoverPool();renderView();updateMap()}
 function getFiltered(){
   let l=allGems;
+  if(maxDistance<25)l=l.filter(g=>g.distance!==null&&g.distance<=maxDistance);
   if(activeCuisines.size){l=l.filter(g=>{const h=(g.cuisine+" "+(g.cuisineGroup||"")+" "+g.name).toLowerCase();for(const c of activeCuisines){if((CKW[c]||[c]).some(k=>h.includes(k)))return true}return false})}
   if(activePrices.size)l=l.filter(g=>activePrices.has(g.priceLevel));
   return l;
@@ -401,20 +425,63 @@ function showCurrentDiscoverCard(){
   let badgePill="";
   if(b){const cls=b.c==="ultra"?"sc-gem-ultra":b.c==="fire"?"sc-gem-fire":"sc-gem-top";badgePill=`<span class="sc-gem-pill ${cls}">${b.l}</span>`}
 
-  const photoHtml=r.photoRef?`<img class="sc-photo" src="${photoUrl(r.photoRef,600)}" alt="${r.name}">`:`<div class="sc-photo-empty">🍽</div>`;
+  // Photo carousel or single photo or empty
+  const refs=r.photoRefs||[];
+  let photoHtml;
+  if(refs.length>1){
+    const imgs=refs.slice(0,5).map(ref=>`<img src="${photoUrl(ref,600)}" alt="${r.name}">`).join("");
+    const dots=refs.slice(0,5).map((_,i)=>`<span class="sc-dot${i===0?" on":""}"></span>`).join("");
+    photoHtml=`<div class="sc-carousel" id="scCarousel">${imgs}</div><div class="sc-dots" id="scDots">${dots}</div>`;
+  }else if(refs.length===1){
+    photoHtml=`<img class="sc-photo" src="${photoUrl(refs[0],600)}" alt="${r.name}">`;
+  }else{
+    photoHtml=`<div class="sc-photo-empty">🍽</div>`;
+  }
+
   const openHtml=r.openNow===true?'<span class="sc-open open">Open now</span>':r.openNow===false?'<span class="sc-open closed">Closed</span>':"";
   const dist=fmtD(r.distance);
+  const distBadge=dist?`<div class="sc-distance">📍 ${dist}</div>`:"";
 
   stack.innerHTML=`<div class="swipe-card entering" id="activeCard">
-    <div class="sc-photo-wrap">${photoHtml}<div class="sc-gradient"></div><div class="sc-badge-wrap">${badgePill}</div><div class="sc-score">${gs}</div></div>
+    <div class="sc-photo-wrap">${photoHtml}<div class="sc-gradient"></div><div class="sc-badge-wrap">${badgePill}</div><div class="sc-score">${gs}</div>${distBadge}</div>
     <div class="sc-body">
       <div class="sc-name">${r.name}</div>
       <div class="sc-story">${gemLine(r)}</div>
       <div class="sc-details"><span class="sc-tag" style="background:${co}18;color:${co}">${r.cuisine}</span>${r.priceLevel?`<span class="lc-price">${priceStr(r.priceLevel)}</span>`:""}${openHtml}</div>
-      <div class="sc-stats"><span><span class="sc-star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} reviews</span>${dist?`<span>·</span><span>${dist}</span>`:""}</div>
+      <div class="sc-stats"><span><span class="sc-star">★</span> ${r.rating}</span><span>·</span><span>${r.reviewCount} reviews</span></div>
       <div class="sc-addr">${r.address}</div>
     </div>
   </div>`;
+
+  // Wire up carousel scroll dots
+  const carousel=document.getElementById("scCarousel");
+  if(carousel){
+    carousel.addEventListener("scroll",()=>{
+      const idx=Math.round(carousel.scrollLeft/carousel.offsetWidth);
+      document.querySelectorAll("#scDots .sc-dot").forEach((d,i)=>d.classList.toggle("on",i===idx));
+    });
+  }
+
+  // Lazy-load more photos from Place Details if we only have 1
+  if(refs.length<=1&&r.placeId){
+    fetchMorePhotos(r.placeId).then(moreRefs=>{
+      if(moreRefs.length>1){
+        r.photoRefs=moreRefs;
+        // Only update if still showing this card
+        if(currentGem&&currentGem.placeId===r.placeId){
+          const wrap=document.querySelector(".sc-photo-wrap");
+          if(wrap){
+            const imgs=moreRefs.slice(0,5).map(ref=>`<img src="${photoUrl(ref,600)}" alt="${r.name}">`).join("");
+            const dots=moreRefs.slice(0,5).map((_,i)=>`<span class="sc-dot${i===0?" on":""}"></span>`).join("");
+            const distB=dist?`<div class="sc-distance">📍 ${dist}</div>`:"";
+            wrap.innerHTML=`<div class="sc-carousel" id="scCarousel">${imgs}</div><div class="sc-dots" id="scDots">${dots}</div><div class="sc-gradient"></div><div class="sc-badge-wrap">${badgePill}</div><div class="sc-score">${gs}</div>${distB}`;
+            const c2=document.getElementById("scCarousel");
+            if(c2)c2.addEventListener("scroll",()=>{const i=Math.round(c2.scrollLeft/c2.offsetWidth);document.querySelectorAll("#scDots .sc-dot").forEach((d,j)=>d.classList.toggle("on",j===i))});
+          }
+        }
+      }
+    }).catch(()=>{});
+  }
 
   hint.style.display="block";acts.style.display="flex";
   document.getElementById("kbHint").style.display="block";
@@ -480,7 +547,7 @@ function renderList(){
 function lcHTML(r,i){
   const co=gc(r.cuisineGroup),saved=savedIds.has(r.placeId),dist=fmtD(r.distance),gs=gemScore(r.rating,r.reviewCount);
   const b=getBadge(r);
-  const ph=r.photoRef?`<img class="lc-photo" src="${photoUrl(r.photoRef,400)}" alt="${r.name}" loading="lazy">`:"";
+  const ph=r.photoRefs&&r.photoRefs.length?`<div class="lc-photo-wrap"><img class="lc-photo" src="${photoUrl(r.photoRefs[0],400)}" alt="${r.name}" loading="lazy">${dist?`<span class="lc-dist">📍 ${dist}</span>`:""}</div>`:(dist?`<div class="lc-photo-wrap" style="height:0;overflow:visible;position:relative"><span class="lc-dist" style="position:relative;display:inline-block;margin:8px 0 0 14px">📍 ${dist}</span></div>`:"");
   const op=r.openNow===true?'<span class="sc-open open" style="font-size:9px;padding:2px 6px">Open</span>':r.openNow===false?'<span class="sc-open closed" style="font-size:9px;padding:2px 6px">Closed</span>':"";
   const bdg=b?`<span class="badge-s ${b.c==="ultra"?"bu":b.c==="fire"?"bf":"bt"}">${b.l}</span>`:"";
   const cls="lc"+(b&&b.c==="ultra"?" lc-ultra":"")+(b&&b.c==="fire"?" lc-fire":"");
@@ -500,6 +567,9 @@ function renderSaved(){
 }
 
 /* ═══ API ═══ */
+async function fetchMorePhotos(placeId){
+  try{const r=await fetch(`${WORKER_URL}/details?place_id=${placeId}`);const d=await r.json();if(d.result?.photos)return d.result.photos.map(p=>p.photo_reference);return[]}catch(e){return[]}
+}
 async function geocode(q){const r=await fetch(`${WORKER_URL}/geocode?address=${encodeURIComponent(q)}`);const d=await r.json();if(d.results?.length)return d.results[0].geometry.location;throw new Error("Location not found.")}
 function processOne(p,cLat,cLng){
   if(p.rating<4.0||p.user_ratings_total<50)return null;
@@ -508,7 +578,7 @@ function processOne(p,cLat,cLng){
   let cuisine=rawType.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),cuisineGroup="";
   for(const[g,kws]of Object.entries(CKW)){if(kws.some(k=>allText.includes(k))){cuisineGroup=g;break}}
   const lat=p.geometry?.location?.lat,lng=p.geometry?.location?.lng;
-  return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance:distMi(cLat,cLng,lat,lng),photoRef:p.photos?.[0]?.photo_reference||null,openNow:p.opening_hours?.open_now??null};
+  return{name:p.name,rating:p.rating,reviewCount:p.user_ratings_total,cuisine,priceLevel:p.price_level||0,address:p.vicinity||"",placeId:p.place_id,cuisineGroup,lat,lng,distance:distMi(cLat,cLng,lat,lng),photoRefs:(p.photos||[]).map(ph=>ph.photo_reference),openNow:p.opening_hours?.open_now??null};
 }
 
 async function scanAndStream(lat,lng){
